@@ -78,7 +78,7 @@ function layoutCards() {
       if (index < totalCards) {
         const x = startX + col * (cardWidth + padding);
         const y = startY + row * (cardHeight + padding);
-        cards.push(new Card(x, y, cardWidth, cardHeight, values[index]));
+        cards.push(new Card(x, y, cardWidth, cardHeight, 1,values[index]));
         index++;
       }
     }
@@ -105,7 +105,7 @@ function checkMatch() {
     selectedCards[1].isMatched = true;
     matchedPairs++;
     score += 100;
-    document.getElementById('score').textContent = `Score: ${score}`;
+    document.getElementById('score').textContent = `${score}`;
     
     if (matchedPairs === totalPairs) {
       setTimeout(startNewRound, 1000);
@@ -172,7 +172,7 @@ function preloadImages(callback) {
         callback();
       }
     };
-    img.src = `images/cards/${i}.png`;
+    img.src = `images/cards/1/${i}.png`;
     images.push(img);
   }
 }

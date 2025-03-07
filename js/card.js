@@ -1,10 +1,11 @@
 export class Card {
-  constructor(x, y, width, height, value) {
+  constructor(x, y, width, height, tier,value) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
     this.value = value;
+    this.tier = tier;
     this.isFlipped = false;
     this.isMatched = false;
     this.image = new Image();
@@ -12,7 +13,7 @@ export class Card {
     this.image.onload = () => {
       this.imageLoaded = true;
     };
-    this.image.src = `images/cards/1/${value}.png`;
+    this.image.src = `images/cards/${tier}/${value}.png`;
   }
 
   draw(ctx) {
