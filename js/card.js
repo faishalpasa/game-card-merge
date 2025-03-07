@@ -8,6 +8,7 @@ export class Card {
     this.tier = tier;
     this.isFlipped = false;
     this.isMatched = false;
+    this.isNotMatched = false;
     this.image = new Image();
     this.imageLoaded = false;
     this.image.onload = () => {
@@ -31,14 +32,15 @@ export class Card {
       ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
-    // If not flipped or matched, cover with a semi-transparent overlay
-    if (this.isFlipped && !this.isMatched) {
-      ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+    // Handle not matched effect
+    if (this.isNotMatched) {
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // Red overlay
       ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
-    if (this.isFlipped && this.isMatched) {
-      ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+    // Normal highlight for flipped cards
+    else if (this.isFlipped && !this.isMatched) {
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
       ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
