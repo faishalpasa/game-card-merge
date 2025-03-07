@@ -2,6 +2,7 @@ import { Card } from './card.js';
 import { Popup } from './popup.js';
 import { AddCardButton } from './addCard.js';
 import { GameSaver } from './save.js';
+import { InstructionPopup } from './instruction.js';
 
 const MAX_CARDS = 20;
 
@@ -32,6 +33,9 @@ let addCardButton;
 // Add after other declarations
 let lastSaveTime = 0;
 const SAVE_INTERVAL = 5000; // Save every 5 seconds
+
+// Add at the top with other imports
+let instructionPopup;
 
 function adjustCanvasSize() {
   if (window.innerWidth <= 720) {
@@ -400,6 +404,9 @@ function startGame() {
   
   setTimeout(() => {
     fadeOutLoading(1, () => {
+      // Show instructions for new players before loading the game
+      instructionPopup = new InstructionPopup();
+      
       // Try to load saved game
       const savedGame = GameSaver.loadGame();
       
