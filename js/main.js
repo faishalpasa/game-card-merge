@@ -1,4 +1,5 @@
 import { Card } from './card.js';
+import { Popup } from './popup.js';
 
 const MAX_CARDS = 20;
 
@@ -17,6 +18,9 @@ let isProcessingMatch = false;
 let isLoading = true;
 let scoreInterval;
 let lastScoreUpdate = 0;
+
+// Add after other const declarations
+const popup = new Popup();
 
 function adjustCanvasSize() {
   if (window.innerWidth <= 720) {
@@ -89,23 +93,57 @@ function startNewRound() {
   }
 }
 
+function getHighlightedCard() {
+  return cards.find(card => card.isFlipped && !card.isMatched);
+}
+
+function handleClick(e) {
+  if (isProcessingMatch) return;
+  
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  
+  let clickedCard = null;
+
+  for (const card of cards) {
+    if (!card.isMatched && card.isPointInside(x, y)) {
+      clickedCard = card;
+      
+      if (!card.isFlipped) {
+        card.isFlipped = true;
+        selectedCards.push(card);
+        
+        if (selectedCards.length === 2) {
+          isProcessingMatch = true;
+          checkMatch();
+        }
+      }
+      break;
+    }
+  }
+  
+  // Update the selected card for the popup - show for highlighted card
+  const highlightedCard = getHighlightedCard();
+  popup.setSelectedCard(highlightedCard);
+}
+
 function checkMatch() {
   if (selectedCards[0].value === selectedCards[1].value && selectedCards[0].tier === selectedCards[1].tier) {
     selectedCards[0].isMatched = true;
     selectedCards[1].isMatched = true;
-    // score += 100;
     scoreElement.textContent = `${score}`;
 
-    // Remove first matched card and update second card's tier
     cards = cards.filter(card => card !== selectedCards[0]);
     selectedCards[1].tier++;
     selectedCards[1].image.src = `images/cards/${selectedCards[1].tier}/${selectedCards[1].value}.png`;
-    
+    selectedCards[1].isFlipped = false;
+    selectedCards[1].isMatched = false;
 
     selectedCards = [];
     isProcessingMatch = false;
+    popup.setSelectedCard(null); // Hide popup when cards are matched
   } else {
-    // Start blinking animation
     selectedCards[0].isNotMatched = true;
     selectedCards[1].isNotMatched = true;
     
@@ -116,28 +154,8 @@ function checkMatch() {
       selectedCards[1].isNotMatched = false;
       selectedCards = [];
       isProcessingMatch = false;
-    }, 500); // Reduced delay to match single blink
-  }
-}
-
-function handleClick(e) {
-  if (isProcessingMatch) return;
-  
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  
-  for (const card of cards) {
-    if (!card.isMatched && !card.isFlipped && card.isPointInside(x, y)) {
-      card.isFlipped = true;
-      selectedCards.push(card);
-      
-      if (selectedCards.length === 2) {
-        isProcessingMatch = true;
-        checkMatch();
-      }
-      break;
-    }
+      popup.setSelectedCard(null); // Hide popup when cards are unflipped
+    }, 500);
   }
 }
 

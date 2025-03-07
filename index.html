@@ -5,13 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Card Match</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .modal-open {
+      overflow: hidden;
+    }
+  </style>
 </head>
 <body class="m-0 p-0 overflow-hidden">
   <main class="bg-brown-500">
-  <canvas id="gameCanvas" class="block mx-auto border-1 border-black touch-none w-full h-full"></canvas>
-  <div class="flex justify-center items-center absolute top-2.5 left-2.5 right-2.5">
-    <div id="score" class="text-3xl text-black">0</div>
-  </div>
+    <canvas id="gameCanvas" class="block mx-auto border-1 border-black touch-none w-full h-full"></canvas>
+    <div class="flex justify-center items-center absolute top-2.5 left-2.5 right-2.5">
+      <div id="score" class="text-3xl text-black">0</div>
+    </div>
   </main>
   <script type="module" src="js/main.js"></script>
 </body>
