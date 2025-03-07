@@ -1,7 +1,7 @@
 export class AddCardButton {
-  constructor(score, onAddCard) {
+  constructor(score, onAddCard, savedPriceIncrease = 100) {
     this.basePrice = 100;
-    this.priceIncrease = 100;
+    this.priceIncrease = savedPriceIncrease;
     this.currentPrice = this.basePrice;
     this.button = this.createButton();
     this.onAddCard = onAddCard;

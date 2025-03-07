@@ -1,6 +1,7 @@
 import { Card } from './card.js';
 import { Popup } from './popup.js';
 import { AddCardButton } from './addCard.js';
+import { GameSaver } from './save.js';
 
 const MAX_CARDS = 20;
 
@@ -28,6 +29,10 @@ let dragOffsetY = 0;
 const popup = new Popup();
 let addCardButton;
 
+// Add after other declarations
+let lastSaveTime = 0;
+const SAVE_INTERVAL = 5000; // Save every 5 seconds
+
 function adjustCanvasSize() {
   if (window.innerWidth <= 720) {
     canvas.width = window.innerWidth;
@@ -45,7 +50,7 @@ function layoutCards() {
   const cardWidth = 50;
   const cardHeight = 75;
   const padding = 4;
-  const totalCards = 4;
+  const initialCards = 4;  // Set initial number of cards
   
   // Calculate grid dimensions
   const cols = Math.ceil(Math.sqrt(MAX_CARDS));
@@ -58,31 +63,14 @@ function layoutCards() {
   const startY = (canvas.height - gridHeight) / 2;
   
   cards = [];
-  const values = [];
 
-  // Generate array of cards
-  for (let i = 1; i <= totalCards; i++) {
-    // Add each value twice to create pairs
-    values.push(Math.floor(Math.random() * 5) + 1);
-  }
-
-  // Shuffle the values array
-  for (let i = values.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [values[i], values[j]] = [values[j], values[i]];
-  }
-
-  // Create cards
-  let index = 0;
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      if (index < totalCards) {
-        const x = startX + col * (cardWidth + padding);
-        const y = startY + row * (cardHeight + padding);
-        cards.push(new Card(x, y, cardWidth, cardHeight, 1, values[index]));
-        index++;
-      }
-    }
+  // Create initial cards in first row
+  for (let i = 0; i < initialCards; i++) {
+    const x = startX + i * (cardWidth + padding);
+    const y = startY;
+    const value = Math.floor(Math.random() * 5) + 1;
+    const card = new Card(x, y, cardWidth, cardHeight, 1, value);
+    cards.push(card);
   }
 }
 
@@ -322,11 +310,15 @@ function drawPlaceholders() {
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  // Draw placeholders first
   drawPlaceholders();
-  
-  // Draw all cards on top
   cards.forEach(card => card.draw(ctx));
+  
+  // Auto-save every SAVE_INTERVAL milliseconds
+  const currentTime = Date.now();
+  if (currentTime - lastSaveTime > SAVE_INTERVAL) {
+    GameSaver.saveGame(createGameState());
+    lastSaveTime = currentTime;
+  }
   
   animationFrameId = requestAnimationFrame(gameLoop);
 }
@@ -408,11 +400,33 @@ function startGame() {
   
   setTimeout(() => {
     fadeOutLoading(1, () => {
-      layoutCards();
+      // Try to load saved game
+      const savedGame = GameSaver.loadGame();
+      
+      if (savedGame) {
+        // Restore game state
+        cards = savedGame.cards;
+        score = savedGame.score;
+        currentRound = savedGame.currentRound;
+        
+        // Initialize add card button with saved price and priceIncrease
+        addCardButton = new AddCardButton(
+          score, 
+          handleAddCard, 
+          savedGame.priceIncrease  // Pass saved priceIncrease
+        );
+        addCardButton.currentPrice = savedGame.addCardPrice;
+        addCardButton.updateButton(score);
+        
+        // Update score display
+        scoreElement.textContent = `${score}`;
+      } else {
+        // Start new game
+        layoutCards();
+        addCardButton = new AddCardButton(score, handleAddCard);
+      }
+      
       gameLoop();
-      // Initialize add card button after loading
-      addCardButton = new AddCardButton(score, handleAddCard);
-      // Start the score interval after loading
       scoreInterval = setInterval(updateScore, 1000);
     });
   }, 500);
@@ -523,3 +537,21 @@ function handleAddCard(price) {
   
   return true;
 }
+
+// Add this function to create game state object
+function createGameState() {
+  return {
+    cards,
+    score,
+    currentRound,
+    addCardPrice: addCardButton ? addCardButton.currentPrice : 100,
+    priceIncrease: addCardButton ? addCardButton.priceIncrease : 100
+  };
+}
+
+// Add save game when switching tabs
+// document.addEventListener('visibilitychange', () => {
+//   if (document.hidden) {
+//     GameSaver.saveGame(createGameState());
+//   }
+// });
