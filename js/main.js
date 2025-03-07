@@ -1,5 +1,6 @@
 import { Card } from './card.js';
 import { Popup } from './popup.js';
+import { AddCardButton } from './addCard.js';
 
 const MAX_CARDS = 20;
 
@@ -25,6 +26,7 @@ let dragOffsetY = 0;
 
 // Add after other const declarations
 const popup = new Popup();
+let addCardButton;
 
 function adjustCanvasSize() {
   if (window.innerWidth <= 720) {
@@ -392,10 +394,12 @@ function fadeOutLoading(opacity, callback) {
 function updateScore() {
   if (isLoading) return;
   
-  // Sum up all (tier * value) for each card
   const scoreToAdd = cards.reduce((sum, card) => sum + (card.tier * card.value), 0);
   score += scoreToAdd;
   scoreElement.textContent = `${score}`;
+  
+  // Update add card button state
+  addCardButton.updateButton(score);
 }
 
 function startGame() {
@@ -406,6 +410,8 @@ function startGame() {
     fadeOutLoading(1, () => {
       layoutCards();
       gameLoop();
+      // Initialize add card button after loading
+      addCardButton = new AddCardButton(score, handleAddCard);
       // Start the score interval after loading
       scoreInterval = setInterval(updateScore, 1000);
     });
@@ -455,3 +461,65 @@ function handleCanvasClick(e) {
 // Move the click event listener to be before the mousedown listener
 canvas.removeEventListener('click', handleCanvasClick); // Remove any existing listener
 canvas.addEventListener('click', handleCanvasClick);
+
+// Add this function to find first empty placeholder position
+function findEmptyPosition() {
+  const cardWidth = 50;
+  const cardHeight = 75;
+  const padding = 4;
+  
+  const cols = Math.ceil(Math.sqrt(MAX_CARDS));
+  const rows = Math.ceil(MAX_CARDS / cols);
+  
+  const gridWidth = cols * (cardWidth + padding) - padding;
+  const gridHeight = rows * (cardHeight + padding) - padding;
+  const startX = (canvas.width - gridWidth) / 2;
+  const startY = (canvas.height - gridHeight) / 2;
+
+  // Check each position in the grid
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const x = startX + col * (cardWidth + padding);
+      const y = startY + row * (cardHeight + padding);
+      
+      // Check if this position is empty
+      const isOccupied = cards.some(card => 
+        card.originalX === x && card.originalY === y
+      );
+      
+      if (!isOccupied) {
+        return { x, y };
+      }
+    }
+  }
+  return null;
+}
+
+// Add this function to handle adding new cards
+function handleAddCard(price) {
+  if (score < price) return false;
+  
+  const position = findEmptyPosition();
+  if (!position) return false;
+  
+  // Deduct points
+  score -= price;
+  scoreElement.textContent = `${score}`;
+  
+  // Create new card
+  const newCard = new Card(
+    position.x,
+    position.y,
+    50, // width
+    75, // height
+    1,  // tier
+    Math.floor(Math.random() * 5) + 1 // random value 1-5
+  );
+  
+  cards.push(newCard);
+  
+  // Update button state
+  addCardButton.updateButton(score);
+  
+  return true;
+}

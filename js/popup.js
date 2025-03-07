@@ -8,7 +8,7 @@ export class Popup {
   createPopupElements() {
     // Create info button
     this.infoButton = document.createElement('button');
-    this.infoButton.className = 'fixed bottom-4 right-4 bg-blue-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hidden';
+    this.infoButton.className = 'fixed z-50 bottom-4 right-4 bg-blue-500 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hidden';
     this.infoButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
     
     // Create modal container
