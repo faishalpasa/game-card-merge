@@ -59,7 +59,6 @@ export class Popup {
       </div>
       <div class="space-y-2">
         <p class="text-xl font-bold">Card Details</p>
-        <p>Value: ${this.selectedCard.value}</p>
         <p>Tier: ${this.selectedCard.tier}</p>
         <p>Points per second: ${this.selectedCard.tier * this.selectedCard.value}</p>
       </div>

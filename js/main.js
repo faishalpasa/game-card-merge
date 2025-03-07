@@ -18,6 +18,10 @@ let isProcessingMatch = false;
 let isLoading = true;
 let scoreInterval;
 let lastScoreUpdate = 0;
+let isDragging = false;
+let draggedCard = null;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
 
 // Add after other const declarations
 const popup = new Popup();
@@ -97,66 +101,185 @@ function getHighlightedCard() {
   return cards.find(card => card.isFlipped && !card.isMatched);
 }
 
-function handleClick(e) {
-  if (isProcessingMatch) return;
-  
+// Modify mouse/touch event handlers
+function getEventCoordinates(e) {
   const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
   
-  let clickedCard = null;
+  // Account for canvas scaling
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  
+  return {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
+  };
+}
 
+// Add this function to handle single clicks
+function handleClick(e) {
+  const coords = getEventCoordinates(e);
+  
+  // Reset all cards' selected state
+  cards.forEach(card => card.isSelected = false);
+  
+  // Find clicked card
   for (const card of cards) {
-    if (!card.isMatched && card.isPointInside(x, y)) {
-      clickedCard = card;
+    if (!card.isMatched && card.isPointInside(coords.x, coords.y)) {
+      card.isSelected = true;
+      popup.setSelectedCard(card);
+      return;
+    }
+  }
+  
+  // If we click outside any card, deselect all
+  popup.setSelectedCard(null);
+}
+
+function handleStart(e) {
+  e.preventDefault();
+  const coords = getEventCoordinates(e);
+  
+  // Store the start time to differentiate between clicks and drags
+  const startTime = Date.now();
+  
+  for (const card of cards) {
+    if (!card.isMatched && card.isPointInside(coords.x, coords.y)) {
+      isDragging = true;
+      draggedCard = card;
+      dragOffsetX = coords.x - card.x;
+      dragOffsetY = coords.y - card.y;
+      card.isFlipped = true;
       
-      if (!card.isFlipped) {
-        card.isFlipped = true;
-        selectedCards.push(card);
+      // Handle the end of the interaction
+      const handleEndInteraction = () => {
+        const endTime = Date.now();
+        const duration = endTime - startTime;
         
-        if (selectedCards.length === 2) {
-          isProcessingMatch = true;
-          checkMatch();
+        // If it was a short tap/click (less than 200ms), treat it as a click
+        if (duration < 200 && Math.abs(card.x - card.originalX) < 5 && Math.abs(card.y - card.originalY) < 5) {
+          handleClick(e);
         }
+      };
+      
+      // Add one-time listener for mouseup/touchend
+      const cleanup = (ev) => {
+        handleEndInteraction();
+        canvas.removeEventListener('mouseup', cleanup);
+        canvas.removeEventListener('touchend', cleanup);
+      };
+      
+      canvas.addEventListener('mouseup', cleanup, { once: true });
+      canvas.addEventListener('touchend', cleanup, { once: true });
+      
+      break;
+    } else {
+      cards.forEach(card => card.isSelected = false);
+      popup.setSelectedCard(null);
+    }
+  }
+}
+
+function handleMove(e) {
+  e.preventDefault();
+  if (!isDragging || !draggedCard) return;
+  
+  const coords = getEventCoordinates(e);
+  
+  // Update card position
+  draggedCard.x = coords.x - dragOffsetX;
+  draggedCard.y = coords.y - dragOffsetY;
+  
+  // Check for potential matches while dragging
+  for (const card of cards) {
+    if (card !== draggedCard && !card.isMatched) {
+      if (card.isPointInside(coords.x, coords.y)) {
+        card.isFlipped = true;
+      } else {
+        card.isFlipped = false;
+      }
+    }
+  }
+}
+
+function handleEnd(e) {
+  e.preventDefault();
+  if (!isDragging || !draggedCard) return;
+  
+  const coords = getEventCoordinates(e.changedTouches ? e.changedTouches[0] : e);
+  
+  // Check if we dropped on another card
+  for (const card of cards) {
+    if (card !== draggedCard && !card.isMatched && card.isPointInside(coords.x, coords.y)) {
+      // Check if cards match
+      if (card.value === draggedCard.value && card.tier === draggedCard.tier) {
+        // Merge cards
+        cards = cards.filter(c => c !== draggedCard);
+        card.tier++;
+        card.image.src = `images/cards/${card.tier}/${card.value}.png`;
+        card.isFlipped = false;
+        
+        // Reset states immediately for matching cards
+        isDragging = false;
+        draggedCard = null;
+      } else {
+        // Cards don't match - show red highlight
+        card.isNotMatched = true;
+        draggedCard.isNotMatched = true;
+        
+        // Store the draggedCard reference
+        const draggedCardRef = draggedCard;
+        
+        // Reset after 500ms
+        setTimeout(() => {
+          card.isNotMatched = false;
+          if (draggedCardRef && cards.includes(draggedCardRef)) {
+            draggedCardRef.isNotMatched = false;
+            draggedCardRef.x = draggedCardRef.originalX;
+            draggedCardRef.y = draggedCardRef.originalY;
+            draggedCardRef.isFlipped = false;
+          }
+          
+          // Reset drag state after animation
+          isDragging = false;
+          draggedCard = null;
+          
+          // Reset all card highlights
+          cards.forEach(c => {
+            if (!c.isMatched) {
+              c.isFlipped = false;
+            }
+          });
+        }, 250);
+        
+        return; // Exit the function to prevent immediate reset
       }
       break;
     }
   }
   
-  // Update the selected card for the popup - show for highlighted card
-  const highlightedCard = getHighlightedCard();
-  popup.setSelectedCard(highlightedCard);
-}
-
-function checkMatch() {
-  if (selectedCards[0].value === selectedCards[1].value && selectedCards[0].tier === selectedCards[1].tier) {
-    selectedCards[0].isMatched = true;
-    selectedCards[1].isMatched = true;
-    scoreElement.textContent = `${score}`;
-
-    cards = cards.filter(card => card !== selectedCards[0]);
-    selectedCards[1].tier++;
-    selectedCards[1].image.src = `images/cards/${selectedCards[1].tier}/${selectedCards[1].value}.png`;
-    selectedCards[1].isFlipped = false;
-    selectedCards[1].isMatched = false;
-
-    selectedCards = [];
-    isProcessingMatch = false;
-    popup.setSelectedCard(null); // Hide popup when cards are matched
-  } else {
-    selectedCards[0].isNotMatched = true;
-    selectedCards[1].isNotMatched = true;
-    
-    setTimeout(() => {
-      selectedCards[0].isFlipped = false;
-      selectedCards[1].isFlipped = false;
-      selectedCards[0].isNotMatched = false;
-      selectedCards[1].isNotMatched = false;
-      selectedCards = [];
-      isProcessingMatch = false;
-      popup.setSelectedCard(null); // Hide popup when cards are unflipped
-    }, 500);
+  // Only reset position if we didn't drop on another card
+  if (cards.includes(draggedCard)) {
+    draggedCard.x = draggedCard.originalX;
+    draggedCard.y = draggedCard.originalY;
+    draggedCard.isFlipped = false;
   }
+  
+  // Reset drag state
+  isDragging = false;
+  draggedCard = null;
+  
+  // Reset all card highlights
+  cards.forEach(card => {
+    if (!card.isMatched) {
+      card.isFlipped = false;
+    }
+  });
+  
+  // Reset all cards' selected state after drag
+  cards.forEach(card => card.isSelected = false);
+  popup.setSelectedCard(null);
 }
 
 function drawPlaceholders() {
@@ -293,9 +416,42 @@ preloadImages(() => {
   startGame();
 });
 
-canvas.addEventListener('click', handleClick);
+// Replace the event listeners at the bottom of the file
+canvas.addEventListener('mousedown', handleStart);
+canvas.addEventListener('mousemove', handleMove);
+canvas.addEventListener('mouseup', handleEnd);
+
+// Add touch event listeners
+canvas.addEventListener('touchstart', handleStart, { passive: false });
+canvas.addEventListener('touchmove', handleMove, { passive: false });
+canvas.addEventListener('touchend', handleEnd, { passive: false });
+
 window.addEventListener('resize', adjustCanvasSize);
 window.addEventListener('beforeunload', () => {
   cancelAnimationFrame(animationFrameId);
   clearInterval(scoreInterval);
 });
+
+// Modify the handleCanvasClick function
+function handleCanvasClick(e) {
+  // Don't handle clicks if we're dragging
+  if (isDragging) return;
+  
+  const coords = getEventCoordinates(e);
+  
+  // Check if we clicked on any card first
+  for (const card of cards) {
+    if (!card.isMatched && card.isPointInside(coords.x, coords.y)) {
+      // Let the other click handler manage card clicks
+      return;
+    }
+  }
+  
+  // If we get here, we clicked outside all cards
+  cards.forEach(card => card.isSelected = false);
+  popup.setSelectedCard(null);
+}
+
+// Move the click event listener to be before the mousedown listener
+canvas.removeEventListener('click', handleCanvasClick); // Remove any existing listener
+canvas.addEventListener('click', handleCanvasClick);
