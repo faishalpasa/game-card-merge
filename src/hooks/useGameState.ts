@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+
+import packageJson from '../../package.json'
 import { UseGameState } from '@/types'
 import { Card } from '@/classes/Card'
 import {
@@ -113,7 +115,8 @@ export const useGameState = (): UseGameState => {
         originalY: card.originalY,
         placeOrder: card.placeOrder
       })),
-      price: addCardPrice
+      price: addCardPrice,
+      version: packageJson.version
     }
     saveGameState(gameState)
   }, [score, cards, addCardPrice, gameLoaded])

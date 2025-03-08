@@ -5,6 +5,7 @@ import { AddCardButton } from './components/AddCardButton'
 import { InstructionPopup } from './components/InstructionPopup'
 import { useGameState } from './hooks/useGameState'
 
+import { loadGameState } from './utils/save'
 import packageJson from '../package.json'
 
 const App = () => {
@@ -26,6 +27,11 @@ const App = () => {
   useEffect(() => {
     initializeGame()
     console.log(packageJson.version)
+
+    if (import.meta.env.VITE_NODE_ENV === 'development') {
+      const gameState = loadGameState()
+      console.log({ gameState })
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

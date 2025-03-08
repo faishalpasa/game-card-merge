@@ -13,4 +13,5 @@ export type GameState = {
     placeOrder: number
   }[]
   price: number
+  version?: string
 }
