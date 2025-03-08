@@ -5,6 +5,8 @@ import { GameSaver } from './save.js';
 import { InstructionPopup } from './instruction.js';
 
 const MAX_CARDS = 20;
+const ADD_CARD_PRICE = 100;
+const PRICE_INCREASE = ADD_CARD_PRICE * 0.5;
 
 const scoreElement = document.getElementById('score');
 const canvas = document.getElementById('gameCanvas');
@@ -420,7 +422,8 @@ function startGame() {
         addCardButton = new AddCardButton(
           score, 
           handleAddCard, 
-          savedGame.priceIncrease  // Pass saved priceIncrease
+          savedGame.addCardPrice,
+          savedGame.priceIncrease,
         );
         addCardButton.currentPrice = savedGame.addCardPrice;
         addCardButton.updateButton(score);
@@ -430,7 +433,7 @@ function startGame() {
       } else {
         // Start new game
         layoutCards();
-        addCardButton = new AddCardButton(score, handleAddCard);
+        addCardButton = new AddCardButton(score, handleAddCard, ADD_CARD_PRICE, PRICE_INCREASE);
       }
       
       gameLoop();
@@ -551,8 +554,8 @@ function createGameState() {
     cards,
     score,
     currentRound,
-    addCardPrice: addCardButton ? addCardButton.currentPrice : 100,
-    priceIncrease: addCardButton ? addCardButton.priceIncrease : 100
+    addCardPrice: addCardButton ? addCardButton.currentPrice : ADD_CARD_PRICE,
+    priceIncrease: addCardButton ? addCardButton.priceIncrease : PRICE_INCREASE
   };
 }
 

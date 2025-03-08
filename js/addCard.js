@@ -1,8 +1,7 @@
 export class AddCardButton {
-  constructor(score, onAddCard, savedPriceIncrease = 100) {
-    this.basePrice = 100;
+  constructor(score, onAddCard, savedAddCardPrice = 100, savedPriceIncrease = 100) {
     this.priceIncrease = savedPriceIncrease;
-    this.currentPrice = this.basePrice;
+    this.currentPrice = savedAddCardPrice;
     this.button = this.createButton();
     this.onAddCard = onAddCard;
     this.updateButton(score);
@@ -20,6 +19,7 @@ export class AddCardButton {
     
     button.addEventListener('click', () => {
       if (this.onAddCard(this.currentPrice)) {
+        this.priceIncrease += (this.currentPrice * 0.5);
         this.currentPrice += this.priceIncrease;
         button.querySelector('span').textContent = `Add Card (${this.currentPrice})`;
       }
