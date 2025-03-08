@@ -48,7 +48,7 @@ export class Card {
       console.warn(`Failed to load image for card tier ${tier} value ${value}`)
       this.imageLoaded = false
     }
-    this.image.src = `/images/cards/${tier}/${value}.png`
+    this.image.src = `${import.meta.env.VITE_BASE_URL}/images/cards/${tier}/${value}.png`
   }
 
   isPointInside(x: number, y: number): boolean {

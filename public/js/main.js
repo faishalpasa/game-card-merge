@@ -337,7 +337,7 @@ function preloadImages(callback) {
         callback()
       }
     }
-    img.src = `images/cards/1/${i}.png`
+    img.src = `${import.meta.env.VITE_BASE_URL}/images/cards/1/${i}.png`
     images.push(img)
   }
 }
