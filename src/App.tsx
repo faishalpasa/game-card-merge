@@ -1,0 +1,52 @@
+import { useEffect, useState } from 'react'
+import { GameCanvas } from './components/GameCanvas'
+import { Score } from './components/Score'
+import { AddCardButton } from './components/AddCardButton'
+import { InstructionPopup } from './components/InstructionPopup'
+import { useGameState } from './hooks/useGameState'
+
+const App = () => {
+  const {
+    score,
+    cards,
+    addCardPrice,
+    handleAddCard,
+    gameLoaded,
+    initializeGame,
+    handleSetCards
+  } = useGameState()
+
+  const [showInstructions, setShowInstructions] = useState<boolean>(
+    !localStorage.getItem('hasSeenInstructions')
+  )
+
+  useEffect(() => {
+    initializeGame()
+  }, [])
+
+  if (!gameLoaded) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <main className="bg-brown-500 h-screen relative">
+      <GameCanvas cards={cards} onSetCards={handleSetCards} />
+      <Score score={score} />
+      <AddCardButton
+        price={addCardPrice}
+        score={score}
+        onAddCard={handleAddCard}
+      />
+      {showInstructions && (
+        <InstructionPopup
+          onClose={() => {
+            setShowInstructions(false)
+            localStorage.setItem('hasSeenInstructions', 'true')
+          }}
+        />
+      )}
+    </main>
+  )
+}
+
+export default App
