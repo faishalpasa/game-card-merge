@@ -61,24 +61,28 @@ export const useGameState = (): GameState => {
   }
 
   const initializeGame = () => {
-    // Load saved game or create new game
     const savedGame = localStorage.getItem('cardGameState')
     if (savedGame) {
       const { savedScore, savedCards, savedPrice } = JSON.parse(savedGame)
       setScore(savedScore)
-      // Reconstruct Card objects from saved data
-      const reconstructedCards = savedCards.map(
-        (cardData: any) =>
-          new Card(
-            cardData.id,
-            cardData.x,
-            cardData.y,
-            cardData.width,
-            cardData.height,
-            cardData.tier,
-            cardData.value
-          )
-      )
+
+      // Reconstruct Card objects with saved positions
+      const reconstructedCards = savedCards.map((cardData: any) => {
+        const card = new Card(
+          cardData.id,
+          cardData.x,
+          cardData.y,
+          cardData.width,
+          cardData.height,
+          cardData.tier,
+          cardData.value
+        )
+        // Restore original positions
+        card.originalX = cardData.originalX
+        card.originalY = cardData.originalY
+        return card
+      })
+
       setCards(reconstructedCards)
       setAddCardPrice(savedPrice)
     } else {
@@ -93,7 +97,17 @@ export const useGameState = (): GameState => {
 
     const gameState = {
       savedScore: score,
-      savedCards: cards,
+      savedCards: cards.map((card) => ({
+        id: card.id,
+        x: card.x,
+        y: card.y,
+        width: card.width,
+        height: card.height,
+        tier: card.tier,
+        value: card.value,
+        originalX: card.originalX, // Save original position
+        originalY: card.originalY // Save original position
+      })),
       savedPrice: addCardPrice
     }
     localStorage.setItem('cardGameState', JSON.stringify(gameState))
@@ -120,6 +134,7 @@ export const useGameState = (): GameState => {
 
     // Remove matched cards
     const unmatchedCards = cards.filter((card) => !card.isMatched)
+
     if (unmatchedCards.length !== cards.length) {
       setCards(unmatchedCards)
     }

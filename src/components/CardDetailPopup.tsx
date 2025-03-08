@@ -1,3 +1,5 @@
+import { Card } from '../classes/Card'
+
 interface CardDetailPopupProps {
   card: Card
   onClose: () => void

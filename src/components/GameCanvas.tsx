@@ -101,7 +101,7 @@ function layoutCards(cards: Card[], canvas: HTMLCanvasElement) {
   const cardWidth = 50
   const cardHeight = 75
   const padding = 4
-  const cols = Math.ceil(Math.sqrt(MAX_CARDS)) // Maximum 16 cards
+  const cols = Math.ceil(Math.sqrt(MAX_CARDS))
   const rows = Math.ceil(MAX_CARDS / cols)
 
   // Calculate grid dimensions
@@ -110,13 +110,46 @@ function layoutCards(cards: Card[], canvas: HTMLCanvasElement) {
   const startX = (canvas.width - gridWidth) / 2
   const startY = (canvas.height - gridHeight) / 2
 
-  // Position each card
-  cards.forEach((card, index) => {
-    const row = Math.floor(index / cols)
-    const col = index % cols
-    card.x = startX + col * (cardWidth + padding)
-    card.y = startY + row * (cardHeight + padding)
-    card.originalX = card.x
-    card.originalY = card.y
+  // Create a grid to track occupied positions
+  const occupiedPositions: boolean[][] = Array(rows)
+    .fill(false)
+    .map(() => Array(cols).fill(false))
+
+  // First, mark existing positions as occupied
+  cards.forEach((card) => {
+    // Only process cards that have been positioned before
+    if (card.originalX !== 0 || card.originalY !== 0) {
+      const col = Math.floor((card.originalX - startX) / (cardWidth + padding))
+      const row = Math.floor((card.originalY - startY) / (cardHeight + padding))
+      if (row >= 0 && row < rows && col >= 0 && col < cols) {
+        occupiedPositions[row][col] = true
+        // Keep the card in its existing position
+        card.x = card.originalX
+        card.y = card.originalY
+      }
+    }
+  })
+
+  // Then, position cards that don't have positions
+  cards.forEach((card) => {
+    // Only process cards that haven't been positioned
+    if (card.originalX === 0 && card.originalY === 0) {
+      // Find first empty position
+      let placed = false
+      for (let row = 0; row < rows && !placed; row++) {
+        for (let col = 0; col < cols && !placed; col++) {
+          if (!occupiedPositions[row][col]) {
+            const newX = startX + col * (cardWidth + padding)
+            const newY = startY + row * (cardHeight + padding)
+            card.x = newX
+            card.y = newY
+            card.originalX = newX
+            card.originalY = newY
+            occupiedPositions[row][col] = true
+            placed = true
+          }
+        }
+      }
+    }
   })
 }

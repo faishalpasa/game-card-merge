@@ -109,7 +109,7 @@ export const useCanvas = (
           card.isSelected = false
           card.isFlipped = false
         })
-        onSetCards?.(cards)
+        // onSetCards?.(cards)
         return
       }
 
@@ -157,7 +157,7 @@ export const useCanvas = (
         coords.y - clickStartPos.y
       )
 
-      // If it was a short click
+      // Handle click events (for selection and info button)
       if (clickDuration < 200 && distance < 5) {
         // Check for info button click first
         const selectedCard = cards.find((card) => card.isSelected)
@@ -166,7 +166,7 @@ export const useCanvas = (
           return
         }
 
-        // Otherwise handle card selection
+        // Handle card selection
         let clickedCard = false
         cards.forEach((card) => {
           if (!card.isMatched && card.isPointInside(coords.x, coords.y)) {
@@ -182,16 +182,82 @@ export const useCanvas = (
           cards.forEach((card) => (card.isSelected = false))
         }
 
-        // Update cards to reflect selection changes
         onSetCards?.(cards)
         return
       }
 
+      // Handle drag and drop
       if (!dragState.isDragging || !dragState.draggedCard) return
-
       const draggedCard = dragState.draggedCard
 
-      // Check if we dropped on another card
+      // Calculate grid positions
+      const cardWidth = 50
+      const cardHeight = 75
+      const padding = 4
+      const cols = Math.ceil(Math.sqrt(MAX_CARDS))
+      const rows = Math.ceil(MAX_CARDS / cols)
+
+      // Calculate grid dimensions
+      const canvas = canvasRef.current
+      if (!canvas) return
+
+      const gridWidth = cols * (cardWidth + padding) - padding
+      const gridHeight = rows * (cardHeight + padding) - padding
+      const startX = (canvas.width - gridWidth) / 2
+      const startY = (canvas.height - gridHeight) / 2
+
+      // Check if we're over a placeholder position
+      const col = Math.floor((coords.x - startX) / (cardWidth + padding))
+      const row = Math.floor((coords.y - startY) / (cardHeight + padding))
+      const isValidPosition =
+        col >= 0 &&
+        col < cols &&
+        row >= 0 &&
+        row < rows &&
+        row * cols + col < MAX_CARDS
+
+      if (isValidPosition) {
+        const newX = startX + col * (cardWidth + padding)
+        const newY = startY + row * (cardHeight + padding)
+
+        // Check if position is occupied
+        const isOccupied = cards.some(
+          (card) =>
+            card !== draggedCard &&
+            !card.isMatched &&
+            card.originalX === newX &&
+            card.originalY === newY
+        )
+
+        if (!isOccupied) {
+          // Move card to new position
+          draggedCard.x = newX
+          draggedCard.y = newY
+          draggedCard.originalX = newX
+          draggedCard.originalY = newY
+          draggedCard.isFlipped = false
+
+          cards.forEach((card) => {
+            if (card.id === draggedCard.id) {
+              card.x = newX
+              card.y = newY
+              card.originalX = newX
+              card.originalY = newY
+            }
+          })
+
+          onSetCards?.(cards)
+          setDragState({
+            isDragging: false,
+            draggedCard: null,
+            dragOffsetX: 0,
+            dragOffsetY: 0
+          })
+          return
+        }
+      }
+
+      // Check for card merging
       for (const card of cards) {
         if (
           card !== draggedCard &&
@@ -251,18 +317,10 @@ export const useCanvas = (
         }
       }
 
-      // Reset card position if not matched
-      if (!draggedCard.isMatched) {
-        draggedCard.x = draggedCard.originalX
-        draggedCard.y = draggedCard.originalY
-      }
-
-      // Reset all cards
-      cards.forEach((card) => {
-        if (!card.isMatched) {
-          card.isFlipped = false
-        }
-      })
+      // Reset position if not dropped on valid position
+      draggedCard.x = draggedCard.originalX
+      draggedCard.y = draggedCard.originalY
+      draggedCard.isFlipped = false
 
       setDragState({
         isDragging: false,
@@ -275,10 +333,11 @@ export const useCanvas = (
       cards,
       dragState,
       getEventCoordinates,
+      canvasRef,
+      onSetCards,
       clickStartTime,
       clickStartPos,
-      onCardClick,
-      onSetCards
+      onCardClick
     ]
   )
 
@@ -325,7 +384,7 @@ export const useCanvas = (
 
       // Draw non-dragged cards first
       cards.forEach((card) => {
-        if (card !== dragState.draggedCard) {
+        if (card.id !== dragState.draggedCard?.id) {
           card.draw(ctx)
         }
       })
