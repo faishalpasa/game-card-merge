@@ -38,6 +38,9 @@ export default ({ mode }: { mode: string }) => {
         }
       }
     },
-    assetsInclude: ['**/*.svg']
+    assetsInclude: ['**/*.svg'],
+    define: {
+      'process.env': process.env
+    }
   })
 }
