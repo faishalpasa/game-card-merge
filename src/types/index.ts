@@ -2,7 +2,7 @@ import { Card } from '@/classes/Card'
 
 export type { Card }
 
-export interface GameState {
+export interface UseGameState {
   score: number
   scorePerSecond: number
   cards: Card[]

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { GameState } from '../types'
+import { UseGameState } from '@/types'
 import { Card } from '@/classes/Card'
 import {
   INITIAL_CARDS,
@@ -8,8 +8,9 @@ import {
   PRICE_INCREASE_RATE,
   MAX_CARDS
 } from '@/constants/game'
+import { saveGameState, loadGameState } from '@/utils/save'
 
-export const useGameState = (): GameState => {
+export const useGameState = (): UseGameState => {
   const [score, setScore] = useState<number>(0)
   const [scorePerSecond, setScorePerSecond] = useState<number>(0)
   const [cards, setCards] = useState<Card[]>([])
@@ -63,13 +64,13 @@ export const useGameState = (): GameState => {
   }
 
   const initializeGame = () => {
-    const savedGame = localStorage.getItem('cardGameState')
+    const savedGame = loadGameState()
     if (savedGame) {
-      const { savedScore, savedCards, savedPrice } = JSON.parse(savedGame)
-      setScore(savedScore)
+      const { score, cards, price } = savedGame
+      setScore(score)
 
       // Reconstruct Card objects with saved positions
-      const reconstructedCards = savedCards.map((cardData: any) => {
+      const reconstructedCards = cards.map((cardData: any) => {
         const card = new Card(
           cardData.id,
           cardData.x,
@@ -87,7 +88,7 @@ export const useGameState = (): GameState => {
       })
 
       setCards(reconstructedCards)
-      setAddCardPrice(savedPrice)
+      setAddCardPrice(price)
     } else {
       setCards(createInitialCards())
     }
@@ -99,8 +100,8 @@ export const useGameState = (): GameState => {
     if (!gameLoaded) return
 
     const gameState = {
-      savedScore: score,
-      savedCards: cards.map((card) => ({
+      score,
+      cards: cards.map((card) => ({
         id: card.id,
         x: card.x,
         y: card.y,
@@ -108,13 +109,13 @@ export const useGameState = (): GameState => {
         height: card.height,
         tier: card.tier,
         value: card.value,
-        originalX: card.originalX, // Save original position
-        originalY: card.originalY, // Save original position
+        originalX: card.originalX,
+        originalY: card.originalY,
         placeOrder: card.placeOrder
       })),
-      savedPrice: addCardPrice
+      price: addCardPrice
     }
-    localStorage.setItem('cardGameState', JSON.stringify(gameState))
+    saveGameState(gameState)
   }, [score, cards, addCardPrice, gameLoaded])
 
   // Update score every second
