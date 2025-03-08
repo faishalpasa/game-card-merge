@@ -47,7 +47,7 @@ export class Card {
       console.warn(`Failed to load image for card tier ${tier} value ${value}`)
       this.imageLoaded = false
     }
-    this.image.src = `/cards/${tier}/${value}.png`
+    this.image.src = `/images/cards/${tier}/${value}.png`
   }
 
   isPointInside(x: number, y: number): boolean {

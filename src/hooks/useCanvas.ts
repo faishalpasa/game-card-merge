@@ -211,7 +211,7 @@ export const useCanvas = (
               card.image = newImage
               card.imageLoaded = true
             }
-            newImage.src = `/cards/${card.tier}/${card.value}.png`
+            newImage.src = `/images/cards/${card.tier}/${card.value}.png`
 
             // Mark the dragged card as matched and remove it
             draggedCard.isMatched = true
