@@ -14,9 +14,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Card Merge</title>
   <meta name="description" content="Card Merge is a simple and addictive game where you merge cards to earn points. Collect cards, upgrade them, and become the ultimate card collector!">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .modal-open {
+      overflow: hidden;
+    }
+  </style>
 </head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
+<body class="m-0 p-0 overflow-hidden">
+  <main class="bg-brown-500">
+    <canvas id="gameCanvas" class="block mx-auto border-1 border-black touch-none w-full h-full max-w-screen-sm"></canvas>
+    <div class="flex justify-center items-center absolute top-2.5 left-2.5 right-2.5">
+      <div id="score" class="text-3xl text-black">0</div>
+    </div>
+  </main>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
