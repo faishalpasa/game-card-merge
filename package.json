@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "axios": "^1.7.9",
-    "biome": "git+https://Guest:glpat-7ZNfs3QCw8AsJrzaNFvd@gitlab.bareksa.com/frontend/biome-design-system.git#v0.5.0",
     "chart.js": "^4.4.7",
     "dayjs": "^1.11.13",
     "react": "^19.0.0",
