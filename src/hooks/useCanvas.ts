@@ -1,7 +1,13 @@
 import { RefObject, useEffect, useState, useCallback } from 'react'
 import { Card } from '@/types'
 import { Card as CardClass } from '@/classes/Card'
-import { MAX_CARDS } from '@/constants/game'
+import {
+  MAX_CARDS,
+  CARD_WIDTH,
+  CARD_HEIGHT,
+  CARD_PADDING,
+  CARD_RADIUS
+} from '@/constants/game'
 
 interface DragState {
   isDragging: boolean
@@ -31,30 +37,27 @@ export const useCanvas = (
 
   // Memoize drawPlaceholders to prevent recreation on every render
   const drawPlaceholders = useCallback((ctx: CanvasRenderingContext2D) => {
-    const cardWidth = 50
-    const cardHeight = 75
-    const padding = 4
     const cols = Math.ceil(Math.sqrt(MAX_CARDS))
     const rows = Math.ceil(MAX_CARDS / cols)
 
     // Calculate grid dimensions
-    const gridWidth = cols * (cardWidth + padding) - padding
-    const gridHeight = rows * (cardHeight + padding) - padding
+    const gridWidth = cols * (CARD_WIDTH + CARD_PADDING) - CARD_PADDING
+    const gridHeight = rows * (CARD_HEIGHT + CARD_PADDING) - CARD_PADDING
     const startX = (ctx.canvas.width - gridWidth) / 2
     const startY = (ctx.canvas.height - gridHeight) / 2
 
     // Draw placeholders
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
-        const x = startX + col * (cardWidth + padding)
-        const y = startY + row * (cardHeight + padding)
+        const x = startX + col * (CARD_WIDTH + CARD_PADDING)
+        const y = startY + row * (CARD_HEIGHT + CARD_PADDING)
 
         ctx.save()
         ctx.fillStyle = '#e0e0e0'
         ctx.strokeStyle = '#666666'
         ctx.lineWidth = 1
         ctx.beginPath()
-        ctx.roundRect(x, y, cardWidth, cardHeight, 6)
+        ctx.roundRect(x, y, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS)
         ctx.fill()
         ctx.stroke()
         ctx.restore()
@@ -109,20 +112,21 @@ export const useCanvas = (
           card.isSelected = false
           card.isFlipped = false
         })
-        // onSetCards?.(cards)
+        onSetCards?.(cards)
         return
       }
 
       // Start drag if clicking on a card
       for (const card of cards) {
         if (!card.isMatched && card.isPointInside(coords.x, coords.y)) {
-          setDragState({
-            isDragging: true,
+          setDragState((prev) => ({
+            ...prev,
+            // isDragging: true,
             draggedCard: card,
             dragOffsetX: coords.x - card.x,
             dragOffsetY: coords.y - card.y
-          })
-          card.isFlipped = true
+          }))
+          // card.isFlipped = true
           break
         }
       }
@@ -132,7 +136,13 @@ export const useCanvas = (
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (!dragState.isDragging || !dragState.draggedCard) return
+      // if (!dragState.isDragging || !dragState.draggedCard) return
+      if (!dragState.draggedCard) return
+
+      setDragState((prev) => ({
+        ...prev,
+        isDragging: true
+      }))
 
       const coords = getEventCoordinates(e)
       dragState.draggedCard.x = coords.x - dragState.dragOffsetX
@@ -142,6 +152,10 @@ export const useCanvas = (
       cards.forEach((card) => {
         if (card !== dragState.draggedCard && !card.isMatched) {
           card.isFlipped = card.isPointInside(coords.x, coords.y)
+        }
+        if (card === dragState.draggedCard) {
+          card.isFlipped = true
+          card.isSelected = false
         }
       })
     },
@@ -163,6 +177,12 @@ export const useCanvas = (
         const selectedCard = cards.find((card) => card.isSelected)
         if (selectedCard?.isInfoButtonClicked(coords.x, coords.y)) {
           onCardClick?.(selectedCard)
+          setDragState({
+            isDragging: false,
+            draggedCard: null,
+            dragOffsetX: 0,
+            dragOffsetY: 0
+          })
           return
         }
 
@@ -179,8 +199,18 @@ export const useCanvas = (
 
         // If clicked outside any card, clear selection
         if (!clickedCard) {
-          cards.forEach((card) => (card.isSelected = false))
+          cards.forEach((card) => {
+            card.isSelected = false
+            card.isFlipped = false
+          })
         }
+
+        setDragState({
+          isDragging: false,
+          draggedCard: null,
+          dragOffsetX: 0,
+          dragOffsetY: 0
+        })
 
         onSetCards?.(cards)
         return
@@ -243,6 +273,7 @@ export const useCanvas = (
               card.y = newY
               card.originalX = newX
               card.originalY = newY
+              card.placeOrder = row * cols + col
             }
           })
 
@@ -284,12 +315,13 @@ export const useCanvas = (
             draggedCard.isFlipped = false
 
             // Reset states
-            setDragState({
+            setDragState((prev) => ({
+              ...prev,
               isDragging: false,
               draggedCard: null,
               dragOffsetX: 0,
               dragOffsetY: 0
-            })
+            }))
 
             const updatedCards = cards.filter(
               (card) => card.id !== draggedCard.id
@@ -310,6 +342,13 @@ export const useCanvas = (
                 draggedCard.y = draggedCard.originalY
                 draggedCard.isFlipped = false
                 draggedCard.isSelected = false
+
+                setDragState({
+                  isDragging: false,
+                  draggedCard: null,
+                  dragOffsetX: 0,
+                  dragOffsetY: 0
+                })
               }
             }, 250)
             return

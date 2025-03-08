@@ -2,8 +2,73 @@ import { RefObject, useEffect, useRef, useState } from 'react'
 
 import { useCanvas } from '@/hooks/useCanvas'
 import { Card } from '@/types'
-import { MAX_CARDS } from '@/constants/game'
+import {
+  MAX_CARDS,
+  CARD_WIDTH,
+  CARD_HEIGHT,
+  CARD_PADDING
+} from '@/constants/game'
 import { CardDetailPopup } from '@/components/CardDetailPopup'
+
+// Add layout function
+function layoutCards(cards: Card[], canvas: HTMLCanvasElement) {
+  const cols = Math.ceil(Math.sqrt(MAX_CARDS))
+  const rows = Math.ceil(MAX_CARDS / cols)
+
+  // Calculate grid dimensions
+  const gridWidth = cols * (CARD_WIDTH + CARD_PADDING) - CARD_PADDING
+  const gridHeight = rows * (CARD_HEIGHT + CARD_PADDING) - CARD_PADDING
+  const startX = (canvas.width - gridWidth) / 2
+  const startY = (canvas.height - gridHeight) / 2
+
+  // Create a grid to track occupied positions
+  const occupiedPositions: boolean[][] = Array(rows)
+    .fill(false)
+    .map(() => Array(cols).fill(false))
+
+  // First, mark existing positions as occupied
+  cards.forEach((card) => {
+    // Only process cards that have been positioned before
+    if (card.originalX !== 0 || card.originalY !== 0) {
+      // Get card x and y based on placeOrder
+      const row = Math.floor(card.placeOrder / cols)
+      const col = card.placeOrder % cols
+
+      if (row >= 0 && row < rows && col >= 0 && col < cols) {
+        occupiedPositions[row][col] = true
+        // Update card position
+        card.x = startX + col * (CARD_WIDTH + CARD_PADDING)
+        card.y = startY + row * (CARD_HEIGHT + CARD_PADDING)
+        card.originalX = card.x
+        card.originalY = card.y
+      }
+    }
+  })
+
+  // Then, position cards that don't have positions
+  cards.forEach((card) => {
+    // Only process cards that haven't been positioned
+    if (card.originalX === 0 && card.originalY === 0) {
+      // Find first empty position
+      let placed = false
+      for (let row = 0; row < rows && !placed; row++) {
+        for (let col = 0; col < cols && !placed; col++) {
+          if (!occupiedPositions[row][col]) {
+            const newX = startX + col * (CARD_WIDTH + CARD_PADDING)
+            const newY = startY + row * (CARD_HEIGHT + CARD_PADDING)
+            card.x = newX
+            card.y = newY
+            card.originalX = newX
+            card.originalY = newY
+            card.placeOrder = row * cols + col
+            occupiedPositions[row][col] = true
+            placed = true
+          }
+        }
+      }
+    }
+  })
+}
 
 interface GameCanvasProps {
   cards: Card[]
@@ -94,62 +159,4 @@ export const GameCanvas = ({ cards, onSetCards }: GameCanvasProps) => {
       )}
     </>
   )
-}
-
-// Add layout function
-function layoutCards(cards: Card[], canvas: HTMLCanvasElement) {
-  const cardWidth = 50
-  const cardHeight = 75
-  const padding = 4
-  const cols = Math.ceil(Math.sqrt(MAX_CARDS))
-  const rows = Math.ceil(MAX_CARDS / cols)
-
-  // Calculate grid dimensions
-  const gridWidth = cols * (cardWidth + padding) - padding
-  const gridHeight = rows * (cardHeight + padding) - padding
-  const startX = (canvas.width - gridWidth) / 2
-  const startY = (canvas.height - gridHeight) / 2
-
-  // Create a grid to track occupied positions
-  const occupiedPositions: boolean[][] = Array(rows)
-    .fill(false)
-    .map(() => Array(cols).fill(false))
-
-  // First, mark existing positions as occupied
-  cards.forEach((card) => {
-    // Only process cards that have been positioned before
-    if (card.originalX !== 0 || card.originalY !== 0) {
-      const col = Math.floor((card.originalX - startX) / (cardWidth + padding))
-      const row = Math.floor((card.originalY - startY) / (cardHeight + padding))
-      if (row >= 0 && row < rows && col >= 0 && col < cols) {
-        occupiedPositions[row][col] = true
-        // Keep the card in its existing position
-        card.x = card.originalX
-        card.y = card.originalY
-      }
-    }
-  })
-
-  // Then, position cards that don't have positions
-  cards.forEach((card) => {
-    // Only process cards that haven't been positioned
-    if (card.originalX === 0 && card.originalY === 0) {
-      // Find first empty position
-      let placed = false
-      for (let row = 0; row < rows && !placed; row++) {
-        for (let col = 0; col < cols && !placed; col++) {
-          if (!occupiedPositions[row][col]) {
-            const newX = startX + col * (cardWidth + padding)
-            const newY = startY + row * (cardHeight + padding)
-            card.x = newX
-            card.y = newY
-            card.originalX = newX
-            card.originalY = newY
-            occupiedPositions[row][col] = true
-            placed = true
-          }
-        }
-      }
-    }
-  })
 }

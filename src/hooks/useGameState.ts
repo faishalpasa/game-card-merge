@@ -8,8 +8,10 @@ import {
   PRICE_INCREASE,
   MAX_CARDS
 } from '@/constants/game'
+
 export const useGameState = (): GameState => {
   const [score, setScore] = useState<number>(0)
+  const [scorePerSecond, setScorePerSecond] = useState<number>(0)
   const [cards, setCards] = useState<Card[]>([])
   const [addCardPrice, setAddCardPrice] = useState<number>(BASE_PRICE)
   const [gameLoaded, setGameLoaded] = useState<boolean>(false)
@@ -80,6 +82,7 @@ export const useGameState = (): GameState => {
         // Restore original positions
         card.originalX = cardData.originalX
         card.originalY = cardData.originalY
+        card.placeOrder = cardData.placeOrder
         return card
       })
 
@@ -106,7 +109,8 @@ export const useGameState = (): GameState => {
         tier: card.tier,
         value: card.value,
         originalX: card.originalX, // Save original position
-        originalY: card.originalY // Save original position
+        originalY: card.originalY, // Save original position
+        placeOrder: card.placeOrder
       })),
       savedPrice: addCardPrice
     }
@@ -117,12 +121,15 @@ export const useGameState = (): GameState => {
   useEffect(() => {
     if (!gameLoaded) return
 
+    const accumulatedScore = cards.reduce(
+      (sum, card) => sum + card.tier * card.value,
+      0
+    )
+
+    setScorePerSecond(accumulatedScore)
+
     const interval = setInterval(() => {
-      const pointsToAdd = cards.reduce(
-        (sum, card) => sum + card.tier * card.value,
-        0
-      )
-      setScore((prev) => prev + pointsToAdd)
+      setScore((prev) => prev + accumulatedScore)
     }, 1000)
 
     return () => clearInterval(interval)
@@ -142,6 +149,7 @@ export const useGameState = (): GameState => {
 
   return {
     score,
+    scorePerSecond,
     cards,
     addCardPrice,
     handleAddCard,

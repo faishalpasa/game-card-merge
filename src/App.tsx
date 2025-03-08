@@ -8,6 +8,7 @@ import { useGameState } from './hooks/useGameState'
 const App = () => {
   const {
     score,
+    scorePerSecond,
     cards,
     addCardPrice,
     handleAddCard,
@@ -31,7 +32,7 @@ const App = () => {
   return (
     <main className="bg-brown-500 h-screen relative">
       <GameCanvas cards={cards} onSetCards={handleSetCards} />
-      <Score score={score} />
+      <Score score={score} scorePerSecond={scorePerSecond} />
       <AddCardButton
         price={addCardPrice}
         score={score}

@@ -4,6 +4,7 @@ export type { Card }
 
 export interface GameState {
   score: number
+  scorePerSecond: number
   cards: Card[]
   addCardPrice: number
   handleAddCard: (price: number) => boolean
