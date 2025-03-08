@@ -1,20 +1,22 @@
 export class InstructionPopup {
   constructor() {
-    this.hasSeenInstructions = localStorage.getItem('hasSeenInstructions');
+    this.hasSeenInstructions = localStorage.getItem('hasSeenInstructions')
     if (!this.hasSeenInstructions) {
-      this.createPopup();
+      this.createPopup()
     }
   }
 
   createPopup() {
     // Create modal container
-    this.modal = document.createElement('div');
-    this.modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-    
+    this.modal = document.createElement('div')
+    this.modal.className =
+      'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
+
     // Create modal content
-    this.modalContent = document.createElement('div');
-    this.modalContent.className = 'bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4 relative';
-    
+    this.modalContent = document.createElement('div')
+    this.modalContent.className =
+      'bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4 relative'
+
     // Create content
     this.modalContent.innerHTML = `
       <h2 class="text-2xl font-bold mb-4">How to Play</h2>
@@ -51,19 +53,19 @@ export class InstructionPopup {
       <button id="startGameBtn" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
         Start Playing!
       </button>
-    `;
-    
-    this.modal.appendChild(this.modalContent);
-    document.body.appendChild(this.modal);
-    
+    `
+
+    this.modal.appendChild(this.modalContent)
+    document.body.appendChild(this.modal)
+
     // Add event listener to start button
     document.getElementById('startGameBtn').addEventListener('click', () => {
-      this.hideInstructions();
-    });
+      this.hideInstructions()
+    })
   }
 
   hideInstructions() {
-    this.modal.remove();
-    localStorage.setItem('hasSeenInstructions', 'true');
+    this.modal.remove()
+    localStorage.setItem('hasSeenInstructions', 'true')
   }
 }
