@@ -159,7 +159,13 @@ export const useCanvas = (
         }
       })
     },
-    [cards, dragState]
+    [
+      cards,
+      dragState.dragOffsetX,
+      dragState.dragOffsetY,
+      dragState.draggedCard,
+      getEventCoordinates
+    ]
   )
 
   const handleMouseUp = useCallback(

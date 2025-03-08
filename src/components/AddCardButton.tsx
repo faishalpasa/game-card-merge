@@ -1,3 +1,5 @@
+import { formatNumber } from '@/utils/number'
+
 interface AddCardButtonProps {
   price: number
   score: number
@@ -17,7 +19,7 @@ export const AddCardButton = ({
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6"
+        className="size-5"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -29,7 +31,7 @@ export const AddCardButton = ({
           d="M12 6v6m0 0v6m0-6h6m-6 0H6"
         />
       </svg>
-      <span>Add Card ({price})</span>
+      <span>Card ({formatNumber(price)})</span>
     </button>
   )
 }

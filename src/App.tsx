@@ -5,6 +5,8 @@ import { AddCardButton } from './components/AddCardButton'
 import { InstructionPopup } from './components/InstructionPopup'
 import { useGameState } from './hooks/useGameState'
 
+import packageJson from '../package.json'
+
 const App = () => {
   const {
     score,
@@ -23,6 +25,8 @@ const App = () => {
 
   useEffect(() => {
     initializeGame()
+    console.log(packageJson.version)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (!gameLoaded) {

@@ -5,7 +5,7 @@ import { Card } from '@/classes/Card'
 import {
   INITIAL_CARDS,
   BASE_PRICE,
-  PRICE_INCREASE,
+  PRICE_INCREASE_RATE,
   MAX_CARDS
 } from '@/constants/game'
 
@@ -38,7 +38,7 @@ export const useGameState = (): GameState => {
     if (score < price || cards.length >= MAX_CARDS) return false
 
     setScore((prev) => prev - price)
-    setAddCardPrice((prev) => prev + PRICE_INCREASE)
+    setAddCardPrice((prev) => prev + PRICE_INCREASE_RATE * price)
 
     const newCard = new Card(
       uuidv4(),
