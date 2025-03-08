@@ -14,7 +14,7 @@ export class Card {
   image: HTMLImageElement
   imageLoaded: boolean
   isSelected: boolean = false
-
+  placeOrder: number = 0
   constructor(
     id: string,
     x: number,
@@ -37,6 +37,7 @@ export class Card {
     this.isMatched = false
     this.isNotMatched = false
     this.imageLoaded = false
+    this.placeOrder = 0
     this.image = new Image()
 
     // Add image load handler
