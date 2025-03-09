@@ -20,6 +20,19 @@ concurrency:
   group: 'pages'
   cancel-in-progress: true
 
+# Allow repo secrets
+env:
+  VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
+  VITE_ENCRYPTION_KEY: ${{ secrets.VITE_ENCRYPTION_KEY }}
+  VITE_FORCE_RESET: ${{ secrets.VITE_FORCE_RESET }}
+  VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+  VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+  VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+  VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+  VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+  VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+  VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
+
 jobs:
   # Single deploy job since we're just deploying
   deploy:
@@ -40,18 +53,6 @@ jobs:
           rm -rf node_modules package-lock.json
           npm cache clean --force
           npm install
-      - name: Allow repo secrets
-        run: |
-          VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}
-          VITE_ENCRYPTION_KEY=${{ secrets.VITE_ENCRYPTION_KEY }}
-          VITE_FORCE_RESET=${{ secrets.VITE_FORCE_RESET }}
-          VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}
-          VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
       - name: Build
         run: npm run build
       - name: Setup Pages
