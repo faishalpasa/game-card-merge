@@ -10,7 +10,7 @@ import {
   PRICE_INCREASE_RATE,
   MAX_CARDS
 } from '@/constants/game'
-import { saveGameState, loadGameState } from '@/utils/save'
+import { saveGameState, loadCloudData } from '@/utils/save'
 import { CARD_WIDTH, CARD_HEIGHT } from '@/constants/game'
 import { GameState } from '@/types/game'
 
@@ -28,6 +28,7 @@ export const useGameState = (): UseGameState => {
   const [scorePerSecond, setScorePerSecond] = useState<number>(0)
   const [cards, setCards] = useState<Card[]>([])
   const [addCardPrice, setAddCardPrice] = useState<number>(BASE_PRICE)
+  const [loadedGameState, setLoadedGameState] = useState<GameState | null>(null)
   const [gameLoaded, setGameLoaded] = useState<boolean>(false)
 
   const createInitialCards = () => {
@@ -81,10 +82,14 @@ export const useGameState = (): UseGameState => {
     setPlayer((prev) => ({ ...prev, name: newName, isNameEditable: false }))
   }, [])
 
+  const handleLoadCloudData = useCallback(async () => {
+    const cloudGameState = await loadCloudData()
+    setLoadedGameState(cloudGameState)
+  }, [])
+
   const initializeGame = useCallback(() => {
-    const savedGame = loadGameState()
-    if (savedGame) {
-      const { score, cards, price, highScore, player } = savedGame
+    if (loadedGameState) {
+      const { score, cards, price, highScore, player } = loadedGameState
 
       // Reconstruct Card objects with saved positions
       const reconstructedCards = cards.map((cardData: any) => {
@@ -116,11 +121,12 @@ export const useGameState = (): UseGameState => {
       setCards(createInitialCards())
     }
     setGameLoaded(true)
-  }, [])
+  }, [loadedGameState])
 
   // Save game state
   const gameState = useMemo(
     () => ({
+      timestamp: Date.now(),
       player: {
         id: player.id,
         name: player.name,
@@ -145,6 +151,10 @@ export const useGameState = (): UseGameState => {
     }),
     [score, cards, addCardPrice, highScore, player]
   )
+
+  useEffect(() => {
+    handleLoadCloudData()
+  }, [handleLoadCloudData])
 
   // Save periodically
   useEffect(() => {

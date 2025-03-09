@@ -1,4 +1,5 @@
 export type GameState = {
+  timestamp: number
   player: {
     id: string
     name: string

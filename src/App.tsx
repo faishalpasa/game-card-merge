@@ -10,7 +10,12 @@ import { PopupHighScore } from './components/PopupHighScore'
 import { PopupPlayerName } from './components/PopupPlayerName'
 import { analytics } from './utils/firebase'
 
-import { loadGameState, checkForceResetGameState } from './utils/save'
+import {
+  loadGameState,
+  loadCloudData,
+  checkForceResetGameState,
+  saveCloudData
+} from './utils/save'
 import packageJson from '../package.json'
 
 const App = () => {
@@ -35,6 +40,17 @@ const App = () => {
   const [showHighScore, setShowHighScore] = useState<boolean>(false)
   const [showPlayerName, setShowPlayerName] = useState<boolean>(false)
 
+  const handleSaveCloudData = async () => {
+    const gameState = loadGameState()
+    const gameStateRaw = loadGameState({ raw: true })
+    saveCloudData(gameState.player.id, gameStateRaw)
+  }
+
+  const handleLoadCloudData = async () => {
+    const cloudGameState = await loadCloudData()
+    console.log({ cloudGameState })
+  }
+
   useEffect(() => {
     logEvent(analytics, 'page_view', {
       page_title: 'Game Card Merge',
@@ -48,8 +64,7 @@ const App = () => {
     console.log(packageJson.version)
 
     if (import.meta.env.VITE_NODE_ENV === 'development') {
-      const gameState = loadGameState()
-      console.log({ gameState })
+      handleLoadCloudData()
     }
   }, [initializeGame, isLoadingGameData])
 
@@ -59,6 +74,14 @@ const App = () => {
       checkForceResetGameState()
       setIsLoadingGameData(false)
     }, 1000)
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleSaveCloudData()
+    }, 10000)
+
+    return () => clearInterval(interval)
   }, [])
 
   return (
