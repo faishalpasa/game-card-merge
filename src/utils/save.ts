@@ -8,11 +8,11 @@ import { db, doc, getDoc, setDoc } from '@/utils/firebase'
 
 const secretKey = import.meta.env.VITE_ENCRYPTION_KEY
 
-const encrypt = (data: string) => {
+export const encrypt = (data: string) => {
   return CryptoJS.AES.encrypt(data, secretKey).toString()
 }
 
-const decrypt = (data: string) => {
+export const decrypt = (data: string) => {
   return CryptoJS.AES.decrypt(data, secretKey).toString(CryptoJS.enc.Utf8)
 }
 
@@ -61,7 +61,7 @@ export const saveCloudData = async (
   try {
     await setDoc(doc(db, GAME_STATE_COLLECTION, id), {
       gameState: gameState,
-      playerName: name,
+      playerName: name || '',
       updatedAt: new Date()
     })
   } catch (error) {
