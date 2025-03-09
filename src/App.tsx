@@ -43,7 +43,7 @@ const App = () => {
   const handleSaveCloudData = async () => {
     const gameState = loadGameState()
     const gameStateRaw = loadGameState({ raw: true })
-    saveCloudData(gameState.player.id, gameStateRaw)
+    saveCloudData(gameState.player.id, gameStateRaw, gameState.player?.name)
   }
 
   const handleLoadCloudData = async () => {
