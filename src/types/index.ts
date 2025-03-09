@@ -3,6 +3,7 @@ import { Card } from '@/classes/Card'
 export type { Card }
 
 export interface UseGameState {
+  highScore: number
   displayScore: number
   score: number
   scorePerSecond: number

@@ -8,12 +8,12 @@ interface HighScoreEntry {
 }
 
 interface PopupHighScoreProps {
-  currentScore: number
+  highScore: number
   onClose: () => void
 }
 
 export const PopupHighScore: React.FC<PopupHighScoreProps> = ({
-  currentScore,
+  highScore,
   onClose
 }) => {
   // Dummy data for top 10
@@ -33,7 +33,7 @@ export const PopupHighScore: React.FC<PopupHighScoreProps> = ({
   // Insert current user's score and sort
   const allScores = [
     ...dummyHighScores,
-    { rank: 0, name: 'You', score: currentScore, isCurrentUser: true }
+    { rank: 0, name: 'You', score: highScore, isCurrentUser: true }
   ]
     .sort((a, b) => b.score - a.score)
     .map((entry, index) => ({ ...entry, rank: index + 1 }))

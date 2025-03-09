@@ -13,6 +13,7 @@ const App = () => {
   const {
     score,
     scorePerSecond,
+    highScore,
     cards,
     addCardPrice,
     handleAddCard,
@@ -84,7 +85,7 @@ const App = () => {
           )}
           {showHighScore && (
             <PopupHighScore
-              currentScore={score}
+              highScore={highScore}
               onClose={() => setShowHighScore(false)}
             />
           )}

@@ -192,6 +192,7 @@ export const useGameState = (): UseGameState => {
     displayScore,
     score,
     scorePerSecond,
+    highScore,
     cards,
     addCardPrice,
     handleAddCard,
