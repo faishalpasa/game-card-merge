@@ -21,7 +21,7 @@ export const saveGameState = (gameState: GameState, { cloud = false } = {}) => {
     const encrypted = encrypt(JSON.stringify(gameState))
     localStorage.setItem(GAME_STATE_KEY, encrypted)
     if (cloud) {
-      saveCloudData(gameState.player.id, encrypted)
+      saveCloudData(gameState.player.id, encrypted, gameState.player.name)
     }
   } catch (error) {
     console.error('Failed to save game:', error)
@@ -53,10 +53,15 @@ export const checkForceResetGameState = () => {
   }
 }
 
-export const saveCloudData = async (id: string, gameState: string) => {
+export const saveCloudData = async (
+  id: string,
+  gameState: string,
+  name?: string
+) => {
   try {
     await setDoc(doc(db, GAME_STATE_COLLECTION, id), {
       gameState: gameState,
+      playerName: name,
       updatedAt: new Date()
     })
   } catch (error) {
