@@ -15,6 +15,7 @@ export const PopupPlayerName = ({
 }: PopupPlayerNameProps) => {
   const [name, setName] = useState(player.name)
   const [error, setError] = useState('')
+  const [copied, setCopied] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,6 +32,16 @@ export const PopupPlayerName = ({
 
     onSave(trimmedName)
     onClose()
+  }
+
+  const handleCopyId = async () => {
+    try {
+      await navigator.clipboard.writeText(player.id)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000) // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
   }
 
   return (
@@ -63,6 +74,25 @@ export const PopupPlayerName = ({
             <p className="text-sm text-gray-500">
               Name is editable for the first time you play the game.
             </p>
+          )}
+
+          {!player.isNameEditable && (
+            <div className="flex items-center gap-2 mt-2">
+              <p className="text-sm text-gray-500 truncate flex-1">
+                {player.id}
+              </p>
+              <button
+                type="button"
+                onClick={handleCopyId}
+                className={`px-2 py-1 text-sm rounded transition-colors ${
+                  copied
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                }`}
+              >
+                {copied ? 'Copied!' : 'Copy ID'}
+              </button>
+            </div>
           )}
 
           {player.isNameEditable && (
