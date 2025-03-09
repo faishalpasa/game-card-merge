@@ -1,10 +1,20 @@
 import CryptoJS from 'crypto-js'
 
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  query,
+  getDocs,
+  orderBy,
+  limit
+} from 'firebase/firestore'
 import packageJson from '../../package.json'
 
 import { GAME_STATE_KEY, GAME_STATE_COLLECTION } from '@/constants/save'
 import { GameState } from '@/types/game'
-import { db, doc, getDoc, setDoc } from '@/utils/firebase'
+import { db } from '@/utils/firebase'
 
 const secretKey = import.meta.env.VITE_ENCRYPTION_KEY
 
@@ -21,7 +31,7 @@ export const saveGameState = (gameState: GameState, { cloud = false } = {}) => {
     const encrypted = encrypt(JSON.stringify(gameState))
     localStorage.setItem(GAME_STATE_KEY, encrypted)
     if (cloud) {
-      saveCloudData(gameState.player.id, encrypted, gameState.player.name)
+      saveCloudData(gameState.player.id, encrypted)
     }
   } catch (error) {
     console.error('Failed to save game:', error)
@@ -53,15 +63,15 @@ export const checkForceResetGameState = () => {
   }
 }
 
-export const saveCloudData = async (
-  id: string,
-  gameState: string,
-  name?: string
-) => {
+export const saveCloudData = async (id: string, gameState: string) => {
   try {
+    const decryptedState = decrypt(gameState)
+    const parsedState = JSON.parse(decryptedState)
+
     await setDoc(doc(db, GAME_STATE_COLLECTION, id), {
       gameState: gameState,
-      playerName: name || '',
+      playerName: parsedState.player.name || '',
+      highScore: parsedState.highScore || 0,
       updatedAt: new Date()
     })
   } catch (error) {
@@ -99,5 +109,32 @@ export const loadCloudData = async () => {
   } catch (error) {
     console.error('Error loading cloud data:', error)
     return null
+  }
+}
+
+export const getHighScores = async (datalimit = 10) => {
+  try {
+    const highScoresRef = collection(db, GAME_STATE_COLLECTION)
+    const q = query(
+      highScoresRef,
+      orderBy('highScore', 'desc'),
+      limit(datalimit)
+    )
+
+    const querySnapshot = await getDocs(q)
+    return querySnapshot.docs
+      .map((doc) => {
+        const data = doc.data()
+        return {
+          playerId: doc.id,
+          playerName: data.playerName || 'Unknown Player',
+          score: data.highScore || 0,
+          isCurrentUser: false
+        }
+      })
+      .filter((score) => score.score > 0)
+  } catch (error) {
+    console.error('Error getting high scores:', error)
+    return []
   }
 }

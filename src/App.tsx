@@ -22,7 +22,6 @@ const App = () => {
   const {
     score,
     scorePerSecond,
-    highScore,
     cards,
     addCardPrice,
     handleAddCard,
@@ -43,7 +42,7 @@ const App = () => {
   const handleSaveCloudData = async () => {
     const gameState = loadGameState()
     const gameStateRaw = loadGameState({ raw: true })
-    saveCloudData(gameState.player.id, gameStateRaw, gameState.player?.name)
+    saveCloudData(gameState.player.id, gameStateRaw)
   }
 
   const handleLoadCloudData = async () => {
@@ -121,10 +120,7 @@ const App = () => {
             />
           )}
           {showHighScore && (
-            <PopupHighScore
-              highScore={highScore}
-              onClose={() => setShowHighScore(false)}
-            />
+            <PopupHighScore onClose={() => setShowHighScore(false)} />
           )}
           {showPlayerName && (
             <PopupPlayerName

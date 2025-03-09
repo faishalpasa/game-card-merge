@@ -1,50 +1,43 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { getHighScores, loadGameState } from '@/utils/save'
 
 interface HighScoreEntry {
-  rank: number
-  name: string
+  playerId: string
+  playerName: string
   score: number
-  isCurrentUser?: boolean
+  isCurrentUser: boolean
 }
 
 interface PopupHighScoreProps {
-  highScore: number
   onClose: () => void
 }
 
-export const PopupHighScore: React.FC<PopupHighScoreProps> = ({
-  highScore,
-  onClose
-}) => {
-  // Dummy data for top 10
-  const dummyHighScores: HighScoreEntry[] = [
-    { rank: 1, name: 'Player 1', score: 1500000 },
-    { rank: 2, name: 'Player 2', score: 1200000 },
-    { rank: 3, name: 'Player 3', score: 1000000 },
-    { rank: 4, name: 'Player 4', score: 800000 },
-    { rank: 5, name: 'Player 5', score: 600000 },
-    { rank: 6, name: 'Player 6', score: 500000 },
-    { rank: 7, name: 'Player 7', score: 400000 },
-    { rank: 8, name: 'Player 8', score: 300000 },
-    { rank: 9, name: 'Player 9', score: 200000 },
-    { rank: 10, name: 'Player 10', score: 100000 }
-  ]
+export const PopupHighScore: React.FC<PopupHighScoreProps> = ({ onClose }) => {
+  const [loading, setLoading] = useState(true)
+  const [scores, setScores] = useState<HighScoreEntry[]>([])
 
-  // Insert current user's score and sort
-  const allScores = [
-    ...dummyHighScores,
-    { rank: 0, name: 'You', score: highScore, isCurrentUser: true }
-  ]
-    .sort((a, b) => b.score - a.score)
-    .map((entry, index) => ({ ...entry, rank: index + 1 }))
+  useEffect(() => {
+    const loadHighScores = async () => {
+      try {
+        const cloudScores = await getHighScores()
+        const gameState = loadGameState()
 
-  // Get top 10 and ensure current user is included
-  const currentUserRank = allScores.findIndex((entry) => entry.isCurrentUser)
-  const displayScores = allScores.slice(0, 10)
+        // Mark current user's score from cloud data
+        const allScores = cloudScores.map((score) => ({
+          ...score,
+          isCurrentUser: score.playerId === gameState.player.id
+        }))
 
-  if (currentUserRank >= 10) {
-    displayScores[9] = allScores[currentUserRank]
-  }
+        setScores(allScores)
+      } catch (error) {
+        console.error('Error loading high scores:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadHighScores()
+  }, [])
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -57,31 +50,35 @@ export const PopupHighScore: React.FC<PopupHighScoreProps> = ({
         </button>
         <h2 className="text-xl font-bold mb-4">High Scores</h2>
         <div className="mb-4">
-          <table className="w-full">
-            <thead>
-              <tr className="text-left border-b">
-                <th className="py-2 w-16">Rank</th>
-                <th className="py-2">Name</th>
-                <th className="py-2 text-right">Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayScores.map((entry) => (
-                <tr
-                  key={entry.rank}
-                  className={`border-b ${
-                    entry.isCurrentUser ? 'bg-yellow-100' : ''
-                  }`}
-                >
-                  <td className="py-2">{entry.rank}</td>
-                  <td className="py-2">{entry.name}</td>
-                  <td className="py-2 text-right">
-                    {entry.score.toLocaleString()}
-                  </td>
+          {loading ? (
+            <div className="text-center py-4">Loading...</div>
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr className="text-left border-b">
+                  <th className="py-2 w-16">Rank</th>
+                  <th className="py-2">Name</th>
+                  <th className="py-2 text-right">Score</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {scores.map((entry, index) => (
+                  <tr
+                    key={entry.playerId}
+                    className={`border-b ${
+                      entry.isCurrentUser ? 'bg-yellow-100' : ''
+                    }`}
+                  >
+                    <td className="py-2">{index + 1}</td>
+                    <td className="py-2">{entry.playerName}</td>
+                    <td className="py-2 text-right">
+                      {entry.score.toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
