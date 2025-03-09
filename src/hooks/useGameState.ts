@@ -14,6 +14,7 @@ import { saveGameState, loadGameState } from '@/utils/save'
 import { CARD_WIDTH, CARD_HEIGHT } from '@/constants/game'
 
 export const useGameState = (): UseGameState => {
+  const [playerId, setPlayerId] = useState<string>()
   const [highScore, setHighScore] = useState<number>(0)
   const [displayScore, setDisplayScore] = useState<number>(0)
   const [score, setScore] = useState<number>(0)
@@ -73,6 +74,7 @@ export const useGameState = (): UseGameState => {
     const savedGame = loadGameState()
     if (savedGame) {
       const { score, cards, price, highScore } = savedGame
+      setPlayerId(savedGame.playerId)
 
       // Reconstruct Card objects with saved positions
       const reconstructedCards = cards.map((cardData: any) => {
@@ -106,6 +108,7 @@ export const useGameState = (): UseGameState => {
   // Save game state
   const gameState = useMemo(
     () => ({
+      playerId: playerId || uuidv4(),
       highScore,
       score,
       cards: cards.map((card) => ({
@@ -123,7 +126,7 @@ export const useGameState = (): UseGameState => {
       price: addCardPrice,
       version: packageJson.version
     }),
-    [score, cards, addCardPrice, highScore]
+    [score, cards, addCardPrice, highScore, playerId]
   )
 
   // Save periodically
