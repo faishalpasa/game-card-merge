@@ -308,8 +308,8 @@ export const useCanvas = (
             // Create and load new image before updating the card
             const newImage = new Image()
             newImage.onload = () => {
-              card.image = newImage
-              card.imageLoaded = true
+              card.thumbImage = newImage
+              card.thumbImageLoaded = true
             }
             newImage.src = `${import.meta.env.VITE_BASE_URL}/images/cards/thumb/${card.level}/${card.value}.png`
 
