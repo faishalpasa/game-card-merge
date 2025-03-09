@@ -44,6 +44,7 @@ jobs:
         run: |
           echo "VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}" >> .env
           echo "VITE_ENCRYPTION_KEY=${{ secrets.VITE_ENCRYPTION_KEY }}" >> .env
+          echo "VITE_FORCE_RESET=${{ secrets.VITE_FORCE_RESET }}" >> .env
       - name: Build
         run: npm run build
       - name: Setup Pages

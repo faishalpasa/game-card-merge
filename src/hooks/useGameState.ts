@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import packageJson from '../../package.json'
@@ -67,7 +67,7 @@ export const useGameState = (): UseGameState => {
     setCards(cards)
   }
 
-  const initializeGame = () => {
+  const initializeGame = useCallback(() => {
     const savedGame = loadGameState()
     if (savedGame) {
       const { score, cards, price } = savedGame
@@ -97,7 +97,7 @@ export const useGameState = (): UseGameState => {
       setCards(createInitialCards())
     }
     setGameLoaded(true)
-  }
+  }, [])
 
   // Save game state
   const gameState = useMemo(

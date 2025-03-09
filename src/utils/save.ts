@@ -1,5 +1,6 @@
 import CryptoJS from 'crypto-js'
 
+import packageJson from '../../package.json'
 import { GAME_STATE_KEY } from '@/constants/save'
 import { GameState } from '@/types/game'
 
@@ -17,7 +18,6 @@ export const saveGameState = (gameState: GameState) => {
   try {
     const encrypted = encrypt(JSON.stringify(gameState))
     localStorage.setItem(GAME_STATE_KEY, encrypted)
-    console.log('Game saved successfully')
   } catch (error) {
     console.error('Failed to save game:', error)
   }
@@ -33,5 +33,13 @@ export const loadGameState = (): GameState | null => {
   } catch (error) {
     console.error('Failed to load game:', error)
     return null
+  }
+}
+
+export const checkForceResetGameState = () => {
+  const gameState = loadGameState()
+
+  if (gameState && gameState.version !== packageJson.version) {
+    localStorage.removeItem(GAME_STATE_KEY)
   }
 }
