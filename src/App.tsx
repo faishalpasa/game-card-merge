@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { logEvent } from 'firebase/analytics'
+
 import { GameCanvas } from './components/GameCanvas'
 import { GameHeader } from './components/GameHeader'
 import { GameFooter } from './components/GameFooter'
@@ -6,6 +8,7 @@ import { PopupInstruction } from './components/PopupInstruction'
 import { useGameState } from './hooks/useGameState'
 import { PopupHighScore } from './components/PopupHighScore'
 import { PopupPlayerName } from './components/PopupPlayerName'
+import { analytics } from './utils/firebase'
 
 import { loadGameState, checkForceResetGameState } from './utils/save'
 import packageJson from '../package.json'
@@ -33,6 +36,12 @@ const App = () => {
   const [showPlayerName, setShowPlayerName] = useState<boolean>(false)
 
   useEffect(() => {
+    logEvent(analytics, 'page_view', {
+      page_title: 'Game Card Merge',
+      page_location: window.location.href,
+      page_path: window.location.pathname
+    })
+
     if (isLoadingGameData) return
 
     initializeGame()
