@@ -11,7 +11,6 @@ import packageJson from '../package.json'
 
 const App = () => {
   const {
-    displayScore,
     score,
     scorePerSecond,
     cards,
@@ -65,7 +64,7 @@ const App = () => {
       ) : (
         <>
           <GameHeader
-            score={displayScore}
+            score={score}
             scorePerSecond={scorePerSecond}
             onShowHighScore={() => setShowHighScore(true)}
           />
