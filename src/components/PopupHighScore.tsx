@@ -48,7 +48,13 @@ export const PopupHighScore: React.FC<PopupHighScoreProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full m-4 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+        >
+          ✕
+        </button>
         <h2 className="text-xl font-bold mb-4">High Scores</h2>
         <div className="mb-4">
           <table className="w-full">
@@ -77,12 +83,6 @@ export const PopupHighScore: React.FC<PopupHighScoreProps> = ({
             </tbody>
           </table>
         </div>
-        <button
-          onClick={onClose}
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-        >
-          Close
-        </button>
       </div>
     </div>
   )

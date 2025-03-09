@@ -12,9 +12,16 @@ import {
 } from '@/constants/game'
 import { saveGameState, loadGameState } from '@/utils/save'
 import { CARD_WIDTH, CARD_HEIGHT } from '@/constants/game'
+import { GameState } from '@/types/game'
+
+const defaultUid = uuidv4()
 
 export const useGameState = (): UseGameState => {
-  const [playerId, setPlayerId] = useState<string>()
+  const [player, setPlayer] = useState<GameState['player']>({
+    id: defaultUid,
+    name: `player-${defaultUid}`,
+    isNameEditable: true
+  })
   const [highScore, setHighScore] = useState<number>(0)
   const [displayScore, setDisplayScore] = useState<number>(0)
   const [score, setScore] = useState<number>(0)
@@ -70,11 +77,14 @@ export const useGameState = (): UseGameState => {
     setCards(cards)
   }
 
+  const handleSetPlayerName = useCallback((newName: string) => {
+    setPlayer((prev) => ({ ...prev, name: newName, isNameEditable: false }))
+  }, [])
+
   const initializeGame = useCallback(() => {
     const savedGame = loadGameState()
     if (savedGame) {
-      const { score, cards, price, highScore } = savedGame
-      setPlayerId(savedGame.playerId)
+      const { score, cards, price, highScore, player } = savedGame
 
       // Reconstruct Card objects with saved positions
       const reconstructedCards = cards.map((cardData: any) => {
@@ -94,6 +104,9 @@ export const useGameState = (): UseGameState => {
         return card
       })
 
+      if (player) {
+        setPlayer(player)
+      }
       setHighScore(highScore)
       setScore(score || 0)
       setDisplayScore(score || 0)
@@ -108,7 +121,11 @@ export const useGameState = (): UseGameState => {
   // Save game state
   const gameState = useMemo(
     () => ({
-      playerId: playerId || uuidv4(),
+      player: {
+        id: player.id,
+        name: player.name,
+        isNameEditable: player.isNameEditable
+      },
       highScore,
       score,
       cards: cards.map((card) => ({
@@ -126,7 +143,7 @@ export const useGameState = (): UseGameState => {
       price: addCardPrice,
       version: packageJson.version
     }),
-    [score, cards, addCardPrice, highScore, playerId]
+    [score, cards, addCardPrice, highScore, player]
   )
 
   // Save periodically
@@ -202,6 +219,8 @@ export const useGameState = (): UseGameState => {
     handleRemoveCard,
     handleSetCards,
     gameLoaded,
-    initializeGame
+    initializeGame,
+    player,
+    handleSetPlayerName
   }
 }

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { GameCanvas } from './components/GameCanvas'
 import { GameHeader } from './components/GameHeader'
-import { ButtonAddCard } from './components/ButtonAddCard'
+import { GameFooter } from './components/GameFooter'
 import { PopupInstruction } from './components/PopupInstruction'
 import { useGameState } from './hooks/useGameState'
 import { PopupHighScore } from './components/PopupHighScore'
+import { PopupPlayerName } from './components/PopupPlayerName'
 
 import { loadGameState, checkForceResetGameState } from './utils/save'
 import packageJson from '../package.json'
@@ -19,7 +20,9 @@ const App = () => {
     handleAddCard,
     gameLoaded,
     initializeGame,
-    handleSetCards
+    handleSetCards,
+    player,
+    handleSetPlayerName
   } = useGameState()
 
   const [showInstructions, setShowInstructions] = useState<boolean>(
@@ -27,6 +30,7 @@ const App = () => {
   )
   const [isLoadingGameData, setIsLoadingGameData] = useState<boolean>(true)
   const [showHighScore, setShowHighScore] = useState<boolean>(false)
+  const [showPlayerName, setShowPlayerName] = useState<boolean>(false)
 
   useEffect(() => {
     if (isLoadingGameData) return
@@ -68,9 +72,10 @@ const App = () => {
             score={score}
             scorePerSecond={scorePerSecond}
             onShowHighScore={() => setShowHighScore(true)}
+            onEditName={() => setShowPlayerName(true)}
           />
           <GameCanvas cards={cards} onSetCards={handleSetCards} />
-          <ButtonAddCard
+          <GameFooter
             price={addCardPrice}
             score={score}
             onAddCard={handleAddCard}
@@ -87,6 +92,13 @@ const App = () => {
             <PopupHighScore
               highScore={highScore}
               onClose={() => setShowHighScore(false)}
+            />
+          )}
+          {showPlayerName && (
+            <PopupPlayerName
+              player={player}
+              onSave={handleSetPlayerName}
+              onClose={() => setShowPlayerName(false)}
             />
           )}
         </>

@@ -1,5 +1,5 @@
 import { Card } from '@/classes/Card'
-
+import { GameState } from '@/types/game'
 export type { Card }
 
 export interface UseGameState {
@@ -14,4 +14,6 @@ export interface UseGameState {
   handleSetCards: (cards: Card[]) => void
   gameLoaded: boolean
   initializeGame: () => void
+  player: GameState['player']
+  handleSetPlayerName: (name: string) => void
 }
