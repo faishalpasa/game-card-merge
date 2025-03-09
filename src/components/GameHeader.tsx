@@ -1,3 +1,5 @@
+import { formatNumber } from '@/utils/number'
+
 interface GameHeaderProps {
   score: number
   scorePerSecond: number
@@ -14,10 +16,10 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
       <div className="flex justify-between items-center">
         <div>
           <div className="text-2xl font-bold text-white">
-            {Math.floor(score).toLocaleString()}
+            {formatNumber(+score)}
           </div>
           <div className="text-sm text-white">
-            {scorePerSecond.toLocaleString()}/s
+            {formatNumber(+scorePerSecond)}/s
           </div>
         </div>
         <button

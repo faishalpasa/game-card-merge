@@ -72,7 +72,7 @@ export const useGameState = (): UseGameState => {
   const initializeGame = useCallback(() => {
     const savedGame = loadGameState()
     if (savedGame) {
-      const { score, cards, price } = savedGame
+      const { score, cards, price, highScore } = savedGame
 
       // Reconstruct Card objects with saved positions
       const reconstructedCards = cards.map((cardData: any) => {
@@ -92,10 +92,7 @@ export const useGameState = (): UseGameState => {
         return card
       })
 
-      if (score > highScore) {
-        setHighScore(score)
-      }
-
+      setHighScore(highScore)
       setScore(score || 0)
       setDisplayScore(score || 0)
       setCards(reconstructedCards)
