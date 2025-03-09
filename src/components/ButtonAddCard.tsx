@@ -1,16 +1,16 @@
 import { formatNumber } from '@/utils/number'
 
-interface AddCardButtonProps {
+interface ButtonAddCardProps {
   price: number
   score: number
   onAddCard: (price: number) => boolean
 }
 
-export const AddCardButton = ({
+export const ButtonAddCard = ({
   price,
   score,
   onAddCard
-}: AddCardButtonProps) => {
+}: ButtonAddCardProps) => {
   return (
     <button
       className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center disabled:active:scale-100 active:scale-95 active:bg-green-600 space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"

@@ -14,6 +14,7 @@ import { saveGameState, loadGameState } from '@/utils/save'
 import { CARD_WIDTH, CARD_HEIGHT } from '@/constants/game'
 
 export const useGameState = (): UseGameState => {
+  const [highScore, setHighScore] = useState<number>(0)
   const [displayScore, setDisplayScore] = useState<number>(0)
   const [score, setScore] = useState<number>(0)
   const [scorePerSecond, setScorePerSecond] = useState<number>(0)
@@ -43,6 +44,7 @@ export const useGameState = (): UseGameState => {
     if (score < price || cards.length >= MAX_CARDS) return false
 
     setScore((prev) => prev - price)
+    setDisplayScore((prev) => prev - price)
     setAddCardPrice((prev) => prev + PRICE_INCREASE_RATE * price)
 
     const newCard = new Card(
@@ -71,7 +73,6 @@ export const useGameState = (): UseGameState => {
     const savedGame = loadGameState()
     if (savedGame) {
       const { score, cards, price } = savedGame
-      setScore(score || 0)
 
       // Reconstruct Card objects with saved positions
       const reconstructedCards = cards.map((cardData: any) => {
@@ -91,6 +92,12 @@ export const useGameState = (): UseGameState => {
         return card
       })
 
+      if (score > highScore) {
+        setHighScore(score)
+      }
+
+      setScore(score || 0)
+      setDisplayScore(score || 0)
       setCards(reconstructedCards)
       setAddCardPrice(price)
     } else {
@@ -102,6 +109,7 @@ export const useGameState = (): UseGameState => {
   // Save game state
   const gameState = useMemo(
     () => ({
+      highScore,
       score,
       cards: cards.map((card) => ({
         id: card.id,
@@ -118,7 +126,7 @@ export const useGameState = (): UseGameState => {
       price: addCardPrice,
       version: packageJson.version
     }),
-    [score, cards, addCardPrice]
+    [score, cards, addCardPrice, highScore]
   )
 
   // Save periodically
@@ -163,6 +171,13 @@ export const useGameState = (): UseGameState => {
 
     return () => clearInterval(interval)
   }, [cards, gameLoaded])
+
+  // Update high score
+  useEffect(() => {
+    if (score > highScore) {
+      setHighScore(score)
+    }
+  }, [score, highScore])
 
   // Add this effect to handle matched cards
   useEffect(() => {

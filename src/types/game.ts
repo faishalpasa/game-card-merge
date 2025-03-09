@@ -1,4 +1,5 @@
 export type GameState = {
+  highScore: number
   score: number
   cards: {
     id: string

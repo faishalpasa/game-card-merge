@@ -8,7 +8,7 @@ import {
   CARD_HEIGHT,
   CARD_PADDING
 } from '@/constants/game'
-import { CardDetailPopup } from '@/components/CardDetailPopup'
+import { CardDetailPopup } from '@/components/PopupCardDetail'
 
 // Add layout function
 function layoutCards(cards: Card[], canvas: HTMLCanvasElement) {

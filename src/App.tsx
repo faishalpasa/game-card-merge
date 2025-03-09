@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { GameCanvas } from './components/GameCanvas'
-import { Score } from './components/Score'
-import { AddCardButton } from './components/AddCardButton'
-import { InstructionPopup } from './components/InstructionPopup'
+import { GameHeader } from './components/GameHeader'
+import { ButtonAddCard } from './components/ButtonAddCard'
+import { PopupInstruction } from './components/PopupInstruction'
 import { useGameState } from './hooks/useGameState'
+import { PopupHighScore } from './components/PopupHighScore'
 
 import { loadGameState, checkForceResetGameState } from './utils/save'
 import packageJson from '../package.json'
@@ -25,6 +26,7 @@ const App = () => {
     !localStorage.getItem('hasSeenInstructions')
   )
   const [isLoadingGameData, setIsLoadingGameData] = useState<boolean>(true)
+  const [showHighScore, setShowHighScore] = useState<boolean>(false)
 
   useEffect(() => {
     if (isLoadingGameData) return
@@ -62,19 +64,29 @@ const App = () => {
         </div>
       ) : (
         <>
+          <GameHeader
+            score={displayScore}
+            scorePerSecond={scorePerSecond}
+            onShowHighScore={() => setShowHighScore(true)}
+          />
           <GameCanvas cards={cards} onSetCards={handleSetCards} />
-          <Score score={displayScore} scorePerSecond={scorePerSecond} />
-          <AddCardButton
+          <ButtonAddCard
             price={addCardPrice}
             score={score}
             onAddCard={handleAddCard}
           />
           {showInstructions && (
-            <InstructionPopup
+            <PopupInstruction
               onClose={() => {
                 setShowInstructions(false)
                 localStorage.setItem('hasSeenInstructions', 'true')
               }}
+            />
+          )}
+          {showHighScore && (
+            <PopupHighScore
+              currentScore={score}
+              onClose={() => setShowHighScore(false)}
             />
           )}
         </>
