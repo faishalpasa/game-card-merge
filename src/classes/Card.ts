@@ -4,7 +4,7 @@ export class Card {
   y: number
   width: number
   height: number
-  tier: number
+  level: number
   value: number
   originalX: number
   originalY: number
@@ -21,7 +21,7 @@ export class Card {
     y: number,
     width: number,
     height: number,
-    tier: number,
+    level: number,
     value: number
   ) {
     this.id = id
@@ -29,7 +29,7 @@ export class Card {
     this.y = y
     this.width = width
     this.height = height
-    this.tier = tier
+    this.level = level
     this.value = value
     this.originalX = x
     this.originalY = y
@@ -45,10 +45,12 @@ export class Card {
       this.imageLoaded = true
     }
     this.image.onerror = () => {
-      console.warn(`Failed to load image for card tier ${tier} value ${value}`)
+      console.warn(
+        `Failed to load image for card level ${level} value ${value}`
+      )
       this.imageLoaded = false
     }
-    this.image.src = `${import.meta.env.VITE_BASE_URL}/images/cards/${tier}/${value}.png`
+    this.image.src = `${import.meta.env.VITE_BASE_URL}/images/cards/${level}/${value}.png`
   }
 
   isPointInside(x: number, y: number): boolean {
@@ -66,7 +68,7 @@ export class Card {
     // Draw card background
     ctx.fillStyle = '#FFFFFF'
     ctx.strokeStyle = this.isSelected ? '#4CAF50' : '#000000'
-    ctx.lineWidth = this.isSelected ? 2 : 1
+    ctx.lineWidth = this.isSelected ? 4 : 1
     ctx.beginPath()
     ctx.roundRect(this.x, this.y, this.width, this.height, 6)
     ctx.fill()
@@ -74,7 +76,20 @@ export class Card {
 
     // Only try to draw image if it's loaded
     if (this.imageLoaded) {
-      ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
+      ctx.roundRect(this.x, this.y, this.width, this.height, 6)
+      ctx.clip()
+      ctx.drawImage(
+        this.image,
+        80,
+        200,
+        800,
+        1200,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      )
+      // ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
     } else {
       // Draw fallback text
       ctx.fillStyle = '#000000'
@@ -88,7 +103,7 @@ export class Card {
       )
       ctx.font = '12px Arial'
       ctx.fillText(
-        `Lv ${this.tier}`,
+        `Lv ${this.level}`,
         this.x + this.width / 2,
         this.y + this.height / 2 + 20
       )
@@ -109,27 +124,27 @@ export class Card {
 
     // Draw info button when selected
     if (this.isSelected) {
-      const buttonSize = 16
-      const buttonX = this.x + this.width - buttonSize - 4
-      const buttonY = this.y + 4
+      // const buttonSize = 16
+      // const buttonX = this.x + this.width - buttonSize - 4
+      // const buttonY = this.y + 4
 
       ctx.fillStyle = '#4CAF50'
       ctx.beginPath()
-      ctx.arc(
-        buttonX + buttonSize / 2,
-        buttonY + buttonSize / 2,
-        buttonSize / 2,
-        0,
-        Math.PI * 2
-      )
+      // ctx.arc(
+      //   buttonX + buttonSize / 2,
+      //   buttonY + buttonSize / 2,
+      //   buttonSize / 2,
+      //   0,
+      //   Math.PI * 2
+      // )
       ctx.fill()
 
       // Draw 'i' symbol
-      ctx.fillStyle = '#FFFFFF'
-      ctx.font = 'bold 12px Arial'
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.fillText('i', buttonX + buttonSize / 2, buttonY + buttonSize / 2)
+      // ctx.fillStyle = '#FFFFFF'
+      // ctx.font = 'bold 12px Arial'
+      // ctx.textAlign = 'center'
+      // ctx.textBaseline = 'middle'
+      // ctx.fillText('i', buttonX + buttonSize / 2, buttonY + buttonSize / 2)
     }
 
     ctx.restore()

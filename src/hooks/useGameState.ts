@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import packageJson from '../../package.json'
@@ -11,8 +11,10 @@ import {
   MAX_CARDS
 } from '@/constants/game'
 import { saveGameState, loadGameState } from '@/utils/save'
+import { CARD_WIDTH, CARD_HEIGHT } from '@/constants/game'
 
 export const useGameState = (): UseGameState => {
+  const [displayScore, setDisplayScore] = useState<number>(0)
   const [score, setScore] = useState<number>(0)
   const [scorePerSecond, setScorePerSecond] = useState<number>(0)
   const [cards, setCards] = useState<Card[]>([])
@@ -27,8 +29,8 @@ export const useGameState = (): UseGameState => {
           uuidv4(),
           0, // x - will be set by layout
           0, // y - will be set by layout
-          50, // width
-          75, // height
+          CARD_WIDTH, // width
+          CARD_HEIGHT, // height
           1, // tier
           Math.floor(Math.random() * 5) + 1 // value
         )
@@ -47,8 +49,8 @@ export const useGameState = (): UseGameState => {
       uuidv4(),
       0, // x - will be set by layout
       0, // y - will be set by layout
-      50, // width
-      75, // height
+      CARD_WIDTH, // width
+      CARD_HEIGHT, // height
       1, // tier
       Math.floor(Math.random() * 5) + 1 // value
     )
@@ -69,7 +71,7 @@ export const useGameState = (): UseGameState => {
     const savedGame = loadGameState()
     if (savedGame) {
       const { score, cards, price } = savedGame
-      setScore(score)
+      setScore(score || 0)
 
       // Reconstruct Card objects with saved positions
       const reconstructedCards = cards.map((cardData: any) => {
@@ -79,7 +81,7 @@ export const useGameState = (): UseGameState => {
           cardData.y,
           cardData.width,
           cardData.height,
-          cardData.tier,
+          cardData.level,
           cardData.value
         )
         // Restore original positions
@@ -98,10 +100,8 @@ export const useGameState = (): UseGameState => {
   }
 
   // Save game state
-  useEffect(() => {
-    if (!gameLoaded) return
-
-    const gameState = {
+  const gameState = useMemo(
+    () => ({
       score,
       cards: cards.map((card) => ({
         id: card.id,
@@ -109,7 +109,7 @@ export const useGameState = (): UseGameState => {
         y: card.y,
         width: card.width,
         height: card.height,
-        tier: card.tier,
+        level: card.level,
         value: card.value,
         originalX: card.originalX,
         originalY: card.originalY,
@@ -117,24 +117,49 @@ export const useGameState = (): UseGameState => {
       })),
       price: addCardPrice,
       version: packageJson.version
-    }
-    saveGameState(gameState)
-  }, [score, cards, addCardPrice, gameLoaded])
+    }),
+    [score, cards, addCardPrice]
+  )
 
-  // Update score every second
+  // Save periodically
+  useEffect(() => {
+    if (!gameLoaded) return
+
+    saveGameState(gameState)
+  }, [gameLoaded, gameState])
+
+  // Update display score every centisecond
   useEffect(() => {
     if (!gameLoaded) return
 
     const accumulatedScore = cards.reduce(
-      (sum, card) => sum + card.tier * card.value,
+      (sum, card) => sum + card.level * card.value,
       0
     )
 
-    setScorePerSecond(accumulatedScore)
+    const scorePerCentisecond = accumulatedScore / 100
+
+    const interval = setInterval(() => {
+      setDisplayScore((prev) => prev + scorePerCentisecond)
+    }, 10)
+
+    return () => clearInterval(interval)
+  }, [cards, gameLoaded])
+
+  // Update real score every second
+  useEffect(() => {
+    if (!gameLoaded) return
+
+    const accumulatedScore = cards.reduce(
+      (sum, card) => sum + card.level * card.value,
+      0
+    )
 
     const interval = setInterval(() => {
       setScore((prev) => prev + accumulatedScore)
     }, 1000)
+
+    setScorePerSecond(accumulatedScore)
 
     return () => clearInterval(interval)
   }, [cards, gameLoaded])
@@ -152,6 +177,7 @@ export const useGameState = (): UseGameState => {
   }, [cards, gameLoaded])
 
   return {
+    displayScore,
     score,
     scorePerSecond,
     cards,

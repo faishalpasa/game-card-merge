@@ -10,6 +10,7 @@ import packageJson from '../package.json'
 
 const App = () => {
   const {
+    displayScore,
     score,
     scorePerSecond,
     cards,
@@ -35,26 +36,38 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (!gameLoaded) {
-    return <div>Loading...</div>
-  }
-
   return (
-    <main className="bg-brown-500 h-screen relative">
-      <GameCanvas cards={cards} onSetCards={handleSetCards} />
-      <Score score={score} scorePerSecond={scorePerSecond} />
-      <AddCardButton
-        price={addCardPrice}
-        score={score}
-        onAddCard={handleAddCard}
-      />
-      {showInstructions && (
-        <InstructionPopup
-          onClose={() => {
-            setShowInstructions(false)
-            localStorage.setItem('hasSeenInstructions', 'true')
-          }}
-        />
+    <main
+      className="bg-green-100 h-screen relative max-w-screen-sm mx-auto"
+      style={{
+        backgroundImage: `url(${import.meta.env.VITE_BASE_URL}/images/bg.png)`,
+        backgroundSize: '48px 48px',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'repeat'
+      }}
+    >
+      {!gameLoaded ? (
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-neutral-700 font-bold text-2xl">Loading...</div>
+        </div>
+      ) : (
+        <>
+          <GameCanvas cards={cards} onSetCards={handleSetCards} />
+          <Score score={displayScore} scorePerSecond={scorePerSecond} />
+          <AddCardButton
+            price={addCardPrice}
+            score={score}
+            onAddCard={handleAddCard}
+          />
+          {showInstructions && (
+            <InstructionPopup
+              onClose={() => {
+                setShowInstructions(false)
+                localStorage.setItem('hasSeenInstructions', 'true')
+              }}
+            />
+          )}
+        </>
       )}
     </main>
   )

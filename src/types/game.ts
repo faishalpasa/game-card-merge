@@ -6,7 +6,7 @@ export type GameState = {
     y: number
     width: number
     height: number
-    tier: number
+    level: number
     value: number
     originalX: number
     originalY: number

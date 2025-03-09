@@ -39,6 +39,8 @@ function layoutCards(cards: Card[], canvas: HTMLCanvasElement) {
         // Update card position
         card.x = startX + col * (CARD_WIDTH + CARD_PADDING)
         card.y = startY + row * (CARD_HEIGHT + CARD_PADDING)
+        card.width = CARD_WIDTH
+        card.height = CARD_HEIGHT
         card.originalX = card.x
         card.originalY = card.y
       }
@@ -60,6 +62,8 @@ function layoutCards(cards: Card[], canvas: HTMLCanvasElement) {
             card.y = newY
             card.originalX = newX
             card.originalY = newY
+            card.width = CARD_WIDTH
+            card.height = CARD_HEIGHT
             card.placeOrder = row * cols + col
             occupiedPositions[row][col] = true
             placed = true

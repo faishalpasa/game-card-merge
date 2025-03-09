@@ -14,11 +14,24 @@ const decrypt = (data: string) => {
 }
 
 export const saveGameState = (gameState: GameState) => {
-  localStorage.setItem(GAME_STATE_KEY, encrypt(JSON.stringify(gameState)))
+  try {
+    const encrypted = encrypt(JSON.stringify(gameState))
+    localStorage.setItem(GAME_STATE_KEY, encrypted)
+    console.log('Game saved successfully')
+  } catch (error) {
+    console.error('Failed to save game:', error)
+  }
 }
 
 export const loadGameState = (): GameState | null => {
-  const gameState = localStorage.getItem(GAME_STATE_KEY)
-  const decryptedGameState = decrypt(gameState || '')
-  return decryptedGameState ? JSON.parse(decryptedGameState) : null
+  try {
+    const gameState = localStorage.getItem(GAME_STATE_KEY)
+    if (!gameState) return null
+
+    const decryptedGameState = decrypt(gameState)
+    return JSON.parse(decryptedGameState)
+  } catch (error) {
+    console.error('Failed to load game:', error)
+    return null
+  }
 }
