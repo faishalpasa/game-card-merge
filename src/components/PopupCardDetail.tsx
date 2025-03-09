@@ -17,7 +17,7 @@ export const CardDetailPopup = ({ card, onClose }: CardDetailPopupProps) => {
         </button>
 
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-32 h-48 relative">
+          <div className="w-auto h-[400px] relative">
             {card.imageLoaded ? (
               <img
                 src={card.image.src}

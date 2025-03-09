@@ -12,7 +12,9 @@ export class Card {
   isMatched: boolean
   isNotMatched: boolean
   image: HTMLImageElement
+  thumbImage: HTMLImageElement
   imageLoaded: boolean
+  thumbImageLoaded: boolean
   isSelected: boolean = false
   placeOrder: number = 0
   constructor(
@@ -39,6 +41,8 @@ export class Card {
     this.imageLoaded = false
     this.placeOrder = 0
     this.image = new Image()
+    this.thumbImage = new Image()
+    this.thumbImageLoaded = false
 
     // Add image load handler
     this.image.onload = () => {
@@ -50,7 +54,16 @@ export class Card {
       )
       this.imageLoaded = false
     }
-    this.image.src = `${import.meta.env.VITE_BASE_URL}/images/cards/${level}/${value}.png`
+    this.image.src = `${import.meta.env.VITE_BASE_URL}/images/cards/big/${level}/${value}.png`
+
+    // Add thumb image load handler
+    this.thumbImage.onload = () => {
+      this.thumbImageLoaded = true
+    }
+    this.thumbImage.onerror = () => {
+      this.thumbImageLoaded = false
+    }
+    this.thumbImage.src = `${import.meta.env.VITE_BASE_URL}/images/cards/thumb/${level}/${value}.png`
   }
 
   isPointInside(x: number, y: number): boolean {
@@ -75,15 +88,15 @@ export class Card {
     ctx.stroke()
 
     // Only try to draw image if it's loaded
-    if (this.imageLoaded) {
+    if (this.thumbImageLoaded) {
       ctx.roundRect(this.x, this.y, this.width, this.height, 6)
       ctx.clip()
       ctx.drawImage(
-        this.image,
-        80,
-        200,
-        800,
-        1200,
+        this.thumbImage,
+        16,
+        40,
+        240,
+        300,
         this.x,
         this.y,
         this.width,

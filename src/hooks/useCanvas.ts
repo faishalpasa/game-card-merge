@@ -311,7 +311,7 @@ export const useCanvas = (
               card.image = newImage
               card.imageLoaded = true
             }
-            newImage.src = `${import.meta.env.VITE_BASE_URL}/images/cards/${card.level}/${card.value}.png`
+            newImage.src = `${import.meta.env.VITE_BASE_URL}/images/cards/thumb/${card.level}/${card.value}.png`
 
             // Mark the dragged card as matched and remove it
             draggedCard.isMatched = true
