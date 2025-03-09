@@ -88,7 +88,7 @@ export class Card {
       )
       ctx.font = '12px Arial'
       ctx.fillText(
-        `T${this.tier}`,
+        `Lv ${this.tier}`,
         this.x + this.width / 2,
         this.y + this.height / 2 + 20
       )

@@ -27,16 +27,19 @@ export const CardDetailPopup = ({ card, onClose }: CardDetailPopupProps) => {
             ) : (
               <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center">
                 <span className="text-2xl">{card.value}</span>
-                <span className="text-sm">Tier {card.tier}</span>
+                <span className="text-sm">Lv {card.tier}</span>
               </div>
             )}
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-2 w-full">
             <h3 className="text-xl font-bold">Card Details</h3>
-            <p>Tier: {card.tier}</p>
-            <p>Value: {card.value}</p>
-            <p>Points/sec: {card.tier * card.value}</p>
+            <div className="grid grid-cols-2 gap-1">
+              <p className="text-sm font-semibold">Lv {card.tier}</p>
+              <p className="text-sm font-semibold">
+                +{card.tier * card.value}/s
+              </p>
+            </div>
           </div>
         </div>
       </div>

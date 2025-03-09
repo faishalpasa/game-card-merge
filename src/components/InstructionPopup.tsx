@@ -12,18 +12,16 @@ export const InstructionPopup = ({ onClose }: InstructionPopupProps) => {
           <div className="space-y-2">
             <p className="font-semibold">🎮 Basic Gameplay:</p>
             <ul className="list-disc pl-5 space-y-1">
-              <li>
-                Drag and drop cards of the same tier and value to merge them
-              </li>
-              <li>Merged cards upgrade to the next tier</li>
-              <li>Higher tier cards generate more points per second</li>
+              <li>Drag and drop cards of the same level to merge them</li>
+              <li>Merged cards upgrade to the next level</li>
+              <li>Higher level cards generate more points per second</li>
             </ul>
           </div>
 
           <div className="space-y-2">
             <p className="font-semibold">💰 Points System:</p>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Each card generates points based on its tier × value</li>
+              <li>Each card generates points based on its level</li>
               <li>Use points to buy new cards</li>
               <li>Card price increases with each purchase</li>
             </ul>
@@ -32,8 +30,8 @@ export const InstructionPopup = ({ onClose }: InstructionPopupProps) => {
           <div className="space-y-2">
             <p className="font-semibold">ℹ️ Tips:</p>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Click a card to see its details</li>
-              <li>Try to create higher tier cards for more points</li>
+              <li>Double tap a card to see its details</li>
+              <li>Try to create higher level cards for more points</li>
               <li>Plan your merges carefully!</li>
             </ul>
           </div>

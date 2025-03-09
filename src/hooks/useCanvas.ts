@@ -181,15 +181,8 @@ export const useCanvas = (
       if (clickDuration < 200 && distance < 5) {
         // Check for info button click first
         const selectedCard = cards.find((card) => card.isSelected)
-        if (selectedCard?.isInfoButtonClicked(coords.x, coords.y)) {
+        if (selectedCard && selectedCard.isPointInside(coords.x, coords.y)) {
           onCardClick?.(selectedCard)
-          setDragState({
-            isDragging: false,
-            draggedCard: null,
-            dragOffsetX: 0,
-            dragOffsetY: 0
-          })
-          return
         }
 
         // Handle card selection
