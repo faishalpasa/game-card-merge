@@ -136,36 +136,40 @@ export const useCanvas = (
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      // if (!dragState.isDragging || !dragState.draggedCard) return
       if (!dragState.draggedCard) return
 
-      setDragState((prev) => ({
-        ...prev,
-        isDragging: true
-      }))
-
       const coords = getEventCoordinates(e)
-      dragState.draggedCard.x = coords.x - dragState.dragOffsetX
-      dragState.draggedCard.y = coords.y - dragState.dragOffsetY
 
-      // Check for potential matches while dragging
-      cards.forEach((card) => {
-        if (card !== dragState.draggedCard && !card.isMatched) {
-          card.isFlipped = card.isPointInside(coords.x, coords.y)
-        }
-        if (card === dragState.draggedCard) {
-          card.isFlipped = true
-          card.isSelected = false
-        }
-      })
+      // Calculate distance moved from initial click
+      const distanceMoved = Math.hypot(
+        coords.x - clickStartPos.x,
+        coords.y - clickStartPos.y
+      )
+
+      // Only start dragging if moved more than 5px
+      if (!dragState.isDragging && distanceMoved > 20) {
+        setDragState((prev) => ({
+          ...prev,
+          isDragging: true
+        }))
+        dragState.draggedCard.isFlipped = true
+        dragState.draggedCard.isSelected = false
+      }
+
+      // Only update position if dragging
+      if (dragState.isDragging) {
+        dragState.draggedCard.x = coords.x - dragState.dragOffsetX
+        dragState.draggedCard.y = coords.y - dragState.dragOffsetY
+
+        // Check for potential matches while dragging
+        cards.forEach((card) => {
+          if (card !== dragState.draggedCard && !card.isMatched) {
+            card.isFlipped = card.isPointInside(coords.x, coords.y)
+          }
+        })
+      }
     },
-    [
-      cards,
-      dragState.dragOffsetX,
-      dragState.dragOffsetY,
-      dragState.draggedCard,
-      getEventCoordinates
-    ]
+    [cards, dragState, getEventCoordinates, clickStartPos.x, clickStartPos.y]
   )
 
   const handleMouseUp = useCallback(
