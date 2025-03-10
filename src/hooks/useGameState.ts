@@ -112,6 +112,7 @@ export const useGameState = (): UseGameState => {
       setScore((prev) => prev + score)
       setDisplayScore((prev) => prev + score)
       setOfflineScore(null)
+      setOfflineData(null)
     }
   }, [])
 
