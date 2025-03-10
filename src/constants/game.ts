@@ -2,7 +2,7 @@ export const INITIAL_CARDS = 4
 export const MAX_SLOT_CARDS = 10
 export const MAX_SLOT_CARDS_PER_ROW = 5
 export const CARD_WIDTH = 60
-export const CARD_HEIGHT = 75
+export const CARD_HEIGHT = 65
 export const CARD_PADDING = 4
 export const CARD_RADIUS = 6
 
