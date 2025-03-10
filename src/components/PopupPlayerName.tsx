@@ -28,8 +28,8 @@ export const PopupPlayerName = ({
       setError('Name must be at least 3 characters')
       return
     }
-    if (trimmedName.length > 20) {
-      setError('Name must be less than 20 characters')
+    if (trimmedName.length > 25) {
+      setError('Name must be less than 25 characters')
       return
     }
 

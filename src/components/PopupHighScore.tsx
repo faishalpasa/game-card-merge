@@ -51,37 +51,47 @@ export const PopupHighScore: React.FC<PopupHighScoreProps> = ({ onClose }) => {
           ✕
         </button>
         <h2 className="text-xl font-bold mb-4">High Scores</h2>
-        <div className="mb-4">
-          {loading ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : (
+
+        {loading ? (
+          <div className="text-center py-4">Loading...</div>
+        ) : (
+          <div className="relative">
             <table className="w-full">
-              <thead>
+              <thead className="bg-white">
                 <tr className="text-left border-b">
-                  <th className="py-2 w-16">Rank</th>
+                  <th className="py-2 w-12">Rank</th>
                   <th className="py-2">Name</th>
-                  <th className="py-2 text-right">Score</th>
+                  <th className="py-2 text-right w-24">Score</th>
                 </tr>
               </thead>
-              <tbody>
-                {scores.map((entry, index) => (
-                  <tr
-                    key={entry.playerId}
-                    className={`border-b ${
-                      entry.isCurrentUser ? 'bg-yellow-100' : ''
-                    }`}
-                  >
-                    <td className="py-2">{index + 1}</td>
-                    <td className="py-2">{entry.playerName}</td>
-                    <td className="py-2 text-right">
-                      {formatNumber(entry.score)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
             </table>
-          )}
-        </div>
+
+            <div className="max-h-[300px] overflow-y-auto">
+              <table className="w-full">
+                <tbody>
+                  {scores.map((entry, index) => (
+                    <tr
+                      key={entry.playerId}
+                      className={`border-b ${
+                        entry.isCurrentUser ? 'bg-yellow-100' : ''
+                      }`}
+                    >
+                      <td className="py-2 w-12">{index + 1}</td>
+                      <td className="py-2 max-w-[150px]">
+                        <div className="truncate" title={entry.playerName}>
+                          {entry.playerName}
+                        </div>
+                      </td>
+                      <td className="py-2 text-right w-24">
+                        {formatNumber(entry.score)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
