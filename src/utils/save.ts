@@ -87,7 +87,13 @@ export const saveCloudData = async (id: string, gameState: string) => {
 
 export const loadCloudData = async () => {
   const gameState = loadGameState()
-  const id = gameState.player.id
+
+  if (!gameState) {
+    console.log('No game state found')
+    return null
+  }
+
+  const id = gameState.player?.id
 
   try {
     const docRef = doc(db, GAME_STATE_COLLECTION, id)
