@@ -34,7 +34,7 @@ const App = () => {
     addSlotPrice,
     handleAddAdditionalSlotRow,
     additionalSlotRows,
-    offlineScore,
+    offlineData,
     handleUpdateScoreFromOffline
   } = useGameState()
 
@@ -150,11 +150,12 @@ const App = () => {
               onClose={() => setShowPlayerName(false)}
             />
           )}
-          {offlineScore !== null && (
+          {offlineData !== null && (
             <OfflineEarningsPopup
-              score={offlineScore}
+              score={offlineData.score}
+              timeAway={offlineData.timeAway}
               onClose={() => {
-                handleUpdateScoreFromOffline(offlineScore)
+                handleUpdateScoreFromOffline(offlineData.score)
               }}
             />
           )}

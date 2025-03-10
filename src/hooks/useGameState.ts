@@ -36,6 +36,10 @@ export const useGameState = (): UseGameState => {
   const [gameLoaded, setGameLoaded] = useState<boolean>(false)
   const [additionalSlotRows, setAdditionalSlotRows] = useState<number>(0)
   const [offlineScore, setOfflineScore] = useState<number | null>(null)
+  const [offlineData, setOfflineData] = useState<{
+    score: number
+    timeAway: number
+  } | null>(null)
 
   const createInitialCards = () => {
     const newCards: Card[] = []
@@ -169,7 +173,10 @@ export const useGameState = (): UseGameState => {
 
           // Always show popup if there are earnings
           if (earnings > 0) {
-            setOfflineScore(earnings)
+            setOfflineData({
+              score: earnings,
+              timeAway: timeDiff
+            })
           }
         }
 
@@ -310,6 +317,7 @@ export const useGameState = (): UseGameState => {
     additionalSlotRows,
     handleAddAdditionalSlotRow,
     offlineScore,
-    handleUpdateScoreFromOffline
+    handleUpdateScoreFromOffline,
+    offlineData
   }
 }

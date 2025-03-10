@@ -21,4 +21,8 @@ export interface UseGameState {
   handleSetPlayerName: (name: string) => void
   offlineScore: number | null
   handleUpdateScoreFromOffline: (score: number | null) => void
+  offlineData: {
+    score: number
+    timeAway: number
+  } | null
 }
