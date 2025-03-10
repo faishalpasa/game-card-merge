@@ -234,7 +234,7 @@ export const useCanvas = (
       const cardHeight = CARD_HEIGHT
       const padding = CARD_PADDING
       const cols = MAX_SLOT_CARDS_PER_ROW
-      const rows = Math.ceil(MAX_SLOT_CARDS / cols)
+      const rows = Math.ceil(MAX_SLOT_CARDS / cols) + additionalSlotRows
 
       // Calculate grid dimensions
       const canvas = canvasRef.current
@@ -253,7 +253,7 @@ export const useCanvas = (
         col < cols &&
         row >= 0 &&
         row < rows &&
-        row * cols + col < MAX_SLOT_CARDS
+        row * cols + col < MAX_SLOT_CARDS + additionalSlotRows * MAX_SLOT_CARDS
 
       if (isValidPosition) {
         const newX = startX + col * (cardWidth + padding)
@@ -396,7 +396,8 @@ export const useCanvas = (
       onSetCards,
       clickStartTime,
       clickStartPos,
-      onCardClick
+      onCardClick,
+      additionalSlotRows
     ]
   )
 
