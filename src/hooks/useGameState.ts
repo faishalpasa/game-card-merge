@@ -35,6 +35,7 @@ export const useGameState = (): UseGameState => {
   const [addSlotPrice, setAddSlotPrice] = useState<number>(BASE_ADD_SLOT_PRICE)
   const [gameLoaded, setGameLoaded] = useState<boolean>(false)
   const [additionalSlotRows, setAdditionalSlotRows] = useState<number>(0)
+  const [offlineScore, setOfflineScore] = useState<number | null>(null)
 
   const createInitialCards = () => {
     const newCards: Card[] = []
@@ -102,6 +103,14 @@ export const useGameState = (): UseGameState => {
     setPlayer((prev) => ({ ...prev, name: newName, isNameEditable: false }))
   }, [])
 
+  const handleUpdateScoreFromOffline = useCallback((score: number | null) => {
+    if (score) {
+      setScore((prev) => prev + score)
+      setDisplayScore((prev) => prev + score)
+      setOfflineScore(null)
+    }
+  }, [])
+
   const newGameResetStats = useCallback(() => {
     setCards(createInitialCards())
     setAddCardPrice(BASE_DRAW_CARD_PRICE)
@@ -120,7 +129,8 @@ export const useGameState = (): UseGameState => {
         totalAdditionalSlotRows,
         totalDrawCards,
         highScore,
-        player
+        player,
+        timestamp
       } = cloudGameState
 
       if (cards.length) {
@@ -141,6 +151,27 @@ export const useGameState = (): UseGameState => {
           card.placeOrder = cardData.placeOrder
           return card
         })
+
+        // Check if the game was played offline
+        if (timestamp) {
+          const now = Date.now()
+          const timeDiff = now - timestamp
+          // Always calculate earnings, but limit to 2 hours
+          const effectiveTimeDiff = Math.min(timeDiff, 2 * 60 * 60 * 1000) // Cap at 2 hours
+
+          const totalPointsPerSecond = reconstructedCards.reduce(
+            (sum: number, card: any) => sum + card.point,
+            0
+          )
+          const earnings = Math.floor(
+            totalPointsPerSecond * (effectiveTimeDiff / 1000)
+          )
+
+          // Always show popup if there are earnings
+          if (earnings > 0) {
+            setOfflineScore(earnings)
+          }
+        }
 
         const addCardsPrice =
           BASE_DRAW_CARD_PRICE * totalDrawCards * DRAW_CARD_PRICE_INCREASE_RATE
@@ -277,6 +308,8 @@ export const useGameState = (): UseGameState => {
     player,
     handleSetPlayerName,
     additionalSlotRows,
-    handleAddAdditionalSlotRow
+    handleAddAdditionalSlotRow,
+    offlineScore,
+    handleUpdateScoreFromOffline
   }
 }

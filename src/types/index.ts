@@ -19,4 +19,6 @@ export interface UseGameState {
   initializeGame: () => void
   player: GameState['player']
   handleSetPlayerName: (name: string) => void
+  offlineScore: number | null
+  handleUpdateScoreFromOffline: (score: number | null) => void
 }

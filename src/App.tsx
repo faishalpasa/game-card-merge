@@ -16,6 +16,7 @@ import {
   checkForceResetGameState,
   saveCloudData
 } from './utils/save'
+import { OfflineEarningsPopup } from './components/PopupOfflineEarnings'
 import packageJson from '../package.json'
 
 const App = () => {
@@ -32,7 +33,9 @@ const App = () => {
     handleSetPlayerName,
     addSlotPrice,
     handleAddAdditionalSlotRow,
-    additionalSlotRows
+    additionalSlotRows,
+    offlineScore,
+    handleUpdateScoreFromOffline
   } = useGameState()
 
   const [showInstructions, setShowInstructions] = useState<boolean>(
@@ -140,6 +143,14 @@ const App = () => {
               player={player}
               onSave={handleSetPlayerName}
               onClose={() => setShowPlayerName(false)}
+            />
+          )}
+          {offlineScore !== null && (
+            <OfflineEarningsPopup
+              score={offlineScore}
+              onClose={() => {
+                handleUpdateScoreFromOffline(offlineScore)
+              }}
             />
           )}
         </>
