@@ -32,7 +32,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
             className="bg-yellow-500 text-white p-3 rounded-full active:scale-95 active:bg-yellow-600"
           >
             <img
-              src={`${import.meta.env.VITE_BASE_URL}/icons/question.svg`}
+              src={`${import.meta.env.VITE_BASE_URL}/icons/info.svg`}
               alt="Instructions"
               className="size-4"
             />
