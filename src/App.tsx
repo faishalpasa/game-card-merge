@@ -58,6 +58,10 @@ const App = () => {
     console.log({ cloudGameState })
   }
 
+  const handleShowInstructions = () => {
+    setShowInstructions(true)
+  }
+
   useEffect(() => {
     logEvent(analytics, 'page_view', {
       page_title: 'Game Card Merge',
@@ -112,6 +116,7 @@ const App = () => {
             scorePerSecond={scorePerSecond}
             onShowHighScore={() => setShowHighScore(true)}
             onEditName={() => setShowPlayerName(true)}
+            onShowInstructions={handleShowInstructions}
           />
           <GameCanvas
             cards={cards}

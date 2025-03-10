@@ -5,13 +5,15 @@ interface GameHeaderProps {
   scorePerSecond: number
   onShowHighScore: () => void
   onEditName: () => void
+  onShowInstructions: () => void
 }
 
 export const GameHeader: React.FC<GameHeaderProps> = ({
   score,
   scorePerSecond,
   onShowHighScore,
-  onEditName
+  onEditName,
+  onShowInstructions
 }) => {
   return (
     <div className="absolute top-0 left-0 right-0 p-4">
@@ -25,6 +27,16 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-1">
+          <button
+            onClick={onShowInstructions}
+            className="bg-yellow-500 text-white p-3 rounded-full active:scale-95 active:bg-yellow-600"
+          >
+            <img
+              src={`${import.meta.env.VITE_BASE_URL}/icons/question.svg`}
+              alt="Instructions"
+              className="size-4"
+            />
+          </button>
           <button
             onClick={onShowHighScore}
             className="bg-yellow-500 text-white p-3 rounded-full active:scale-95 active:bg-yellow-600"
