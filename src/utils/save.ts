@@ -30,7 +30,7 @@ export const saveGameState = (gameState: GameState, { cloud = false } = {}) => {
   try {
     const encrypted = encrypt(JSON.stringify(gameState))
     localStorage.setItem(GAME_STATE_KEY, encrypted)
-    if (cloud) {
+    if (cloud && gameState.player.id) {
       saveCloudData(gameState.player.id, encrypted)
     }
   } catch (error) {
