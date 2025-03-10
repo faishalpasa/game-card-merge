@@ -164,7 +164,7 @@ export const GameCanvas = ({
     <>
       <canvas
         ref={canvasRef}
-        className="block mx-auto border-1 border-black touch-none w-full h-screen max-w-screen-sm"
+        className="block mx-auto border-1 border-black touch-none w-full h-[calc(100vh-100px)] max-w-screen-sm"
       />
       {selectedCard && (
         <CardDetailPopup
