@@ -19,8 +19,7 @@ export type GameState = {
     originalY: number
     placeOrder: number
   }[]
-  additionalSlotRows: number
-  addCardPrice: number
-  addSlotPrice: number
+  totalAdditionalSlotRows: number
+  totalDrawCards: number
   version?: string
 }

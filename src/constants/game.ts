@@ -6,10 +6,10 @@ export const CARD_HEIGHT = 75
 export const CARD_PADDING = 4
 export const CARD_RADIUS = 6
 
-export const POINT_INCREASE_RATE = 1.75
+export const POINT_INCREASE_RATE = 2.25
 
 export const BASE_DRAW_CARD_PRICE = 100
-export const DRAW_CARD_PRICE_INCREASE_RATE = 1.75
+export const DRAW_CARD_PRICE_INCREASE_RATE = 1.4
 export const BASE_ADD_SLOT_PRICE = 15000
 export const ADD_SLOT_PRICE_INCREASE_RATE = 2.25
 export const MAX_ADDITIONAL_SLOT_ROWS = 5

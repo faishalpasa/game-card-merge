@@ -30,9 +30,9 @@ export const useGameState = (): UseGameState => {
   const [score, setScore] = useState<number>(0)
   const [scorePerSecond, setScorePerSecond] = useState<number>(0)
   const [cards, setCards] = useState<Card[]>([])
+  const [totalDrawCards, setTotalDrawCards] = useState<number>(0)
   const [addCardPrice, setAddCardPrice] = useState<number>(BASE_DRAW_CARD_PRICE)
   const [addSlotPrice, setAddSlotPrice] = useState<number>(BASE_ADD_SLOT_PRICE)
-  // const [loadedGameState, setLoadedGameState] = useState<GameState | null>(null)
   const [gameLoaded, setGameLoaded] = useState<boolean>(false)
   const [additionalSlotRows, setAdditionalSlotRows] = useState<number>(0)
 
@@ -64,6 +64,7 @@ export const useGameState = (): UseGameState => {
     setScore((prev) => prev - price)
     setDisplayScore((prev) => prev - price)
     setAddCardPrice((prev) => prev * DRAW_CARD_PRICE_INCREASE_RATE)
+    setTotalDrawCards((prev) => prev + 1)
 
     const newCard = new Card(
       uuidv4(),
@@ -105,6 +106,7 @@ export const useGameState = (): UseGameState => {
     setCards(createInitialCards())
     setAddCardPrice(BASE_DRAW_CARD_PRICE)
     setAddSlotPrice(BASE_ADD_SLOT_PRICE)
+    setTotalDrawCards(0)
     setAdditionalSlotRows(0)
   }, [])
 
@@ -115,9 +117,8 @@ export const useGameState = (): UseGameState => {
       const {
         score,
         cards,
-        addCardPrice,
-        addSlotPrice,
-        additionalSlotRows,
+        totalAdditionalSlotRows,
+        totalDrawCards,
         highScore,
         player
       } = cloudGameState
@@ -141,16 +142,24 @@ export const useGameState = (): UseGameState => {
           return card
         })
 
+        const addCardsPrice =
+          BASE_DRAW_CARD_PRICE * totalDrawCards * DRAW_CARD_PRICE_INCREASE_RATE
+        const addSlotPrice =
+          BASE_ADD_SLOT_PRICE *
+          totalAdditionalSlotRows *
+          ADD_SLOT_PRICE_INCREASE_RATE
+
         if (player) {
           setPlayer(player)
         }
+        setCards(reconstructedCards)
         setHighScore(highScore)
         setScore(score || 0)
         setDisplayScore(score || 0)
-        setCards(reconstructedCards)
-        setAddCardPrice(addCardPrice || BASE_DRAW_CARD_PRICE)
+        setTotalDrawCards(totalDrawCards || 0)
+        setAdditionalSlotRows(totalAdditionalSlotRows || 0)
+        setAddCardPrice(addCardsPrice || BASE_DRAW_CARD_PRICE)
         setAddSlotPrice(addSlotPrice || BASE_ADD_SLOT_PRICE)
-        setAdditionalSlotRows(additionalSlotRows || 0)
       } else {
         newGameResetStats()
       }
@@ -185,9 +194,8 @@ export const useGameState = (): UseGameState => {
         originalY: card.originalY,
         placeOrder: card.placeOrder
       })),
-      additionalSlotRows,
-      addCardPrice,
-      addSlotPrice,
+      totalAdditionalSlotRows: additionalSlotRows,
+      totalDrawCards: totalDrawCards,
       version: packageJson.version
     }
 
@@ -200,7 +208,8 @@ export const useGameState = (): UseGameState => {
     cards,
     additionalSlotRows,
     addCardPrice,
-    addSlotPrice
+    addSlotPrice,
+    totalDrawCards
   ])
 
   // Update display score every centisecond
