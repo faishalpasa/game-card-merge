@@ -3,17 +3,18 @@ import { RefObject, useEffect, useRef, useState } from 'react'
 import { useCanvas } from '@/hooks/useCanvas'
 import { Card } from '@/types'
 import {
-  MAX_CARDS,
+  MAX_SLOT_CARDS,
   CARD_WIDTH,
   CARD_HEIGHT,
-  CARD_PADDING
+  CARD_PADDING,
+  MAX_SLOT_CARDS_PER_ROW
 } from '@/constants/game'
 import { CardDetailPopup } from '@/components/PopupCardDetail'
 
 // Add layout function
 function layoutCards(cards: Card[], canvas: HTMLCanvasElement) {
-  const cols = Math.ceil(Math.sqrt(MAX_CARDS))
-  const rows = Math.ceil(MAX_CARDS / cols)
+  const cols = MAX_SLOT_CARDS_PER_ROW
+  const rows = Math.ceil(MAX_SLOT_CARDS / cols)
 
   // Calculate grid dimensions
   const gridWidth = cols * (CARD_WIDTH + CARD_PADDING) - CARD_PADDING

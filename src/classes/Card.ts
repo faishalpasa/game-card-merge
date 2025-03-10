@@ -1,3 +1,5 @@
+import { POINT_INCREASE_RATE } from '@/constants/game'
+
 export class Card {
   id: string
   x: number
@@ -17,6 +19,8 @@ export class Card {
   thumbImageLoaded: boolean
   isSelected: boolean = false
   placeOrder: number = 0
+  point: number = 0
+
   constructor(
     id: string,
     x: number,
@@ -43,6 +47,7 @@ export class Card {
     this.image = new Image()
     this.thumbImage = new Image()
     this.thumbImageLoaded = false
+    this.point = value * Math.pow(POINT_INCREASE_RATE, level)
 
     // Add image load handler
     this.image.onload = () => {
@@ -102,7 +107,6 @@ export class Card {
         this.width,
         this.height
       )
-      // ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
     } else {
       // Draw fallback text
       ctx.fillStyle = '#000000'
@@ -137,27 +141,9 @@ export class Card {
 
     // Draw info button when selected
     if (this.isSelected) {
-      // const buttonSize = 16
-      // const buttonX = this.x + this.width - buttonSize - 4
-      // const buttonY = this.y + 4
-
       ctx.fillStyle = '#4CAF50'
       ctx.beginPath()
-      // ctx.arc(
-      //   buttonX + buttonSize / 2,
-      //   buttonY + buttonSize / 2,
-      //   buttonSize / 2,
-      //   0,
-      //   Math.PI * 2
-      // )
       ctx.fill()
-
-      // Draw 'i' symbol
-      // ctx.fillStyle = '#FFFFFF'
-      // ctx.font = 'bold 12px Arial'
-      // ctx.textAlign = 'center'
-      // ctx.textBaseline = 'middle'
-      // ctx.fillText('i', buttonX + buttonSize / 2, buttonY + buttonSize / 2)
     }
 
     ctx.restore()

@@ -36,9 +36,7 @@ export const CardDetailPopup = ({ card, onClose }: CardDetailPopupProps) => {
             <h3 className="text-xl font-bold">Card Details</h3>
             <div className="grid grid-cols-2 gap-1">
               <p className="text-sm font-semibold">Lv {card.level}</p>
-              <p className="text-sm font-semibold">
-                +{card.level * card.value}/s
-              </p>
+              <p className="text-sm font-semibold">+{card.point}/s</p>
             </div>
           </div>
         </div>

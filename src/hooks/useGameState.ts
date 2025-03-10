@@ -6,9 +6,12 @@ import { UseGameState } from '@/types'
 import { Card } from '@/classes/Card'
 import {
   INITIAL_CARDS,
-  BASE_PRICE,
-  PRICE_INCREASE_RATE,
-  MAX_CARDS
+  BASE_DRAW_CARD_PRICE,
+  DRAW_CARD_PRICE_INCREASE_RATE,
+  MAX_SLOT_CARDS,
+  BASE_ADD_SLOT_PRICE,
+  ADD_SLOT_PRICE_INCREASE_RATE,
+  MAX_ADDITIONAL_SLOT_ROWS
 } from '@/constants/game'
 import { saveGameState, loadCloudData } from '@/utils/save'
 import { CARD_WIDTH, CARD_HEIGHT } from '@/constants/game'
@@ -27,9 +30,11 @@ export const useGameState = (): UseGameState => {
   const [score, setScore] = useState<number>(0)
   const [scorePerSecond, setScorePerSecond] = useState<number>(0)
   const [cards, setCards] = useState<Card[]>([])
-  const [addCardPrice, setAddCardPrice] = useState<number>(BASE_PRICE)
+  const [addCardPrice, setAddCardPrice] = useState<number>(BASE_DRAW_CARD_PRICE)
+  const [addSlotPrice, setAddSlotPrice] = useState<number>(BASE_ADD_SLOT_PRICE)
   const [loadedGameState, setLoadedGameState] = useState<GameState | null>(null)
   const [gameLoaded, setGameLoaded] = useState<boolean>(false)
+  const [additionalSlotRows, setAdditionalSlotRows] = useState<number>(0)
 
   const createInitialCards = () => {
     const newCards: Card[] = []
@@ -50,11 +55,11 @@ export const useGameState = (): UseGameState => {
   }
 
   const handleAddCard = (price: number): boolean => {
-    if (score < price || cards.length >= MAX_CARDS) return false
+    if (score < price || cards.length >= MAX_SLOT_CARDS) return false
 
     setScore((prev) => prev - price)
     setDisplayScore((prev) => prev - price)
-    setAddCardPrice((prev) => prev + PRICE_INCREASE_RATE * price)
+    setAddCardPrice((prev) => prev * DRAW_CARD_PRICE_INCREASE_RATE)
 
     const newCard = new Card(
       uuidv4(),
@@ -67,6 +72,16 @@ export const useGameState = (): UseGameState => {
     )
 
     setCards((prev) => [...prev, newCard])
+    return true
+  }
+
+  const handleAddAdditionalSlotRow = (price: number): boolean => {
+    if (score < price || additionalSlotRows >= MAX_ADDITIONAL_SLOT_ROWS)
+      return false
+
+    setScore((prev) => prev - price)
+    setAddSlotPrice((prev) => prev * ADD_SLOT_PRICE_INCREASE_RATE)
+    setAdditionalSlotRows((prev) => prev + 1)
     return true
   }
 
@@ -89,34 +104,48 @@ export const useGameState = (): UseGameState => {
 
   const initializeGame = useCallback(() => {
     if (loadedGameState) {
-      const { score, cards, price, highScore, player } = loadedGameState
+      const {
+        score,
+        cards,
+        addCardPrice,
+        addSlotPrice,
+        additionalSlotRows,
+        highScore,
+        player
+      } = loadedGameState
 
-      // Reconstruct Card objects with saved positions
-      const reconstructedCards = cards.map((cardData: any) => {
-        const card = new Card(
-          cardData.id,
-          cardData.x,
-          cardData.y,
-          cardData.width,
-          cardData.height,
-          cardData.level,
-          cardData.value
-        )
-        // Restore original positions
-        card.originalX = cardData.originalX
-        card.originalY = cardData.originalY
-        card.placeOrder = cardData.placeOrder
-        return card
-      })
+      if (!cards.length) {
+        // Reconstruct Card objects with saved positions
+        const reconstructedCards = cards.map((cardData: any) => {
+          const card = new Card(
+            cardData.id,
+            cardData.x,
+            cardData.y,
+            cardData.width,
+            cardData.height,
+            cardData.level,
+            cardData.value
+          )
+          // Restore original positions
+          card.originalX = cardData.originalX
+          card.originalY = cardData.originalY
+          card.placeOrder = cardData.placeOrder
+          return card
+        })
 
-      if (player) {
-        setPlayer(player)
+        if (player) {
+          setPlayer(player)
+        }
+        setHighScore(highScore)
+        setScore(score || 0)
+        setDisplayScore(score || 0)
+        setCards(reconstructedCards)
+        setAddCardPrice(addCardPrice)
+        setAddSlotPrice(addSlotPrice)
+        setAdditionalSlotRows(additionalSlotRows)
+      } else {
+        setCards(createInitialCards())
       }
-      setHighScore(highScore)
-      setScore(score || 0)
-      setDisplayScore(score || 0)
-      setCards(reconstructedCards)
-      setAddCardPrice(price)
     } else {
       setCards(createInitialCards())
     }
@@ -146,10 +175,20 @@ export const useGameState = (): UseGameState => {
         originalY: card.originalY,
         placeOrder: card.placeOrder
       })),
-      price: addCardPrice,
+      additionalSlotRows,
+      addCardPrice,
+      addSlotPrice,
       version: packageJson.version
     }),
-    [score, cards, addCardPrice, highScore, player]
+    [
+      score,
+      cards,
+      addCardPrice,
+      addSlotPrice,
+      highScore,
+      player,
+      additionalSlotRows
+    ]
   )
 
   useEffect(() => {
@@ -167,10 +206,7 @@ export const useGameState = (): UseGameState => {
   useEffect(() => {
     if (!gameLoaded) return
 
-    const accumulatedScore = cards.reduce(
-      (sum, card) => sum + card.level * card.value,
-      0
-    )
+    const accumulatedScore = cards.reduce((sum, card) => sum + card.point, 0)
 
     const scorePerCentisecond = accumulatedScore / 100
 
@@ -185,10 +221,7 @@ export const useGameState = (): UseGameState => {
   useEffect(() => {
     if (!gameLoaded) return
 
-    const accumulatedScore = cards.reduce(
-      (sum, card) => sum + card.level * card.value,
-      0
-    )
+    const accumulatedScore = cards.reduce((sum, card) => sum + card.point, 0)
 
     const interval = setInterval(() => {
       setScore((prev) => prev + accumulatedScore)
@@ -225,12 +258,15 @@ export const useGameState = (): UseGameState => {
     highScore,
     cards,
     addCardPrice,
+    addSlotPrice,
     handleAddCard,
     handleRemoveCard,
     handleSetCards,
     gameLoaded,
     initializeGame,
     player,
-    handleSetPlayerName
+    handleSetPlayerName,
+    additionalSlotRows,
+    handleAddAdditionalSlotRow
   }
 }

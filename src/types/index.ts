@@ -9,7 +9,10 @@ export interface UseGameState {
   scorePerSecond: number
   cards: Card[]
   addCardPrice: number
+  addSlotPrice: number
   handleAddCard: (price: number) => boolean
+  additionalSlotRows: number
+  handleAddAdditionalSlotRow: (price: number) => boolean
   handleRemoveCard: (cardId: string) => void
   handleSetCards: (cards: Card[]) => void
   gameLoaded: boolean

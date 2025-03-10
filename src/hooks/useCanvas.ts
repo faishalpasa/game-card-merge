@@ -2,11 +2,13 @@ import { RefObject, useEffect, useState, useCallback } from 'react'
 import { Card } from '@/types'
 import { Card as CardClass } from '@/classes/Card'
 import {
-  MAX_CARDS,
+  MAX_SLOT_CARDS,
   CARD_WIDTH,
   CARD_HEIGHT,
   CARD_PADDING,
-  CARD_RADIUS
+  CARD_RADIUS,
+  POINT_INCREASE_RATE,
+  MAX_SLOT_CARDS_PER_ROW
 } from '@/constants/game'
 
 interface DragState {
@@ -37,8 +39,8 @@ export const useCanvas = (
 
   // Memoize drawPlaceholders to prevent recreation on every render
   const drawPlaceholders = useCallback((ctx: CanvasRenderingContext2D) => {
-    const cols = Math.ceil(Math.sqrt(MAX_CARDS))
-    const rows = Math.ceil(MAX_CARDS / cols)
+    const cols = MAX_SLOT_CARDS_PER_ROW
+    const rows = Math.ceil(MAX_SLOT_CARDS / cols)
 
     // Calculate grid dimensions
     const gridWidth = cols * (CARD_WIDTH + CARD_PADDING) - CARD_PADDING
@@ -227,8 +229,8 @@ export const useCanvas = (
       const cardWidth = CARD_WIDTH
       const cardHeight = CARD_HEIGHT
       const padding = CARD_PADDING
-      const cols = Math.ceil(Math.sqrt(MAX_CARDS))
-      const rows = Math.ceil(MAX_CARDS / cols)
+      const cols = Math.ceil(Math.sqrt(MAX_SLOT_CARDS))
+      const rows = Math.ceil(MAX_SLOT_CARDS / cols)
 
       // Calculate grid dimensions
       const canvas = canvasRef.current
@@ -247,7 +249,7 @@ export const useCanvas = (
         col < cols &&
         row >= 0 &&
         row < rows &&
-        row * cols + col < MAX_CARDS
+        row * cols + col < MAX_SLOT_CARDS
 
       if (isValidPosition) {
         const newX = startX + col * (cardWidth + padding)
@@ -305,13 +307,24 @@ export const useCanvas = (
             // Merge cards: update the target card and mark dragged card as matched
             card.level++
 
+            // Update point
+            card.point = card.point * POINT_INCREASE_RATE
+
+            // Create and load new thumbnail image before updating the card
+            const newThumbImage = new Image()
+            newThumbImage.onload = () => {
+              card.thumbImage = newThumbImage
+              card.thumbImageLoaded = true
+            }
+            newThumbImage.src = `${import.meta.env.VITE_BASE_URL}/images/cards/thumb/${card.level}/${card.value}.png`
+
             // Create and load new image before updating the card
             const newImage = new Image()
             newImage.onload = () => {
-              card.thumbImage = newImage
-              card.thumbImageLoaded = true
+              card.image = newImage
+              card.imageLoaded = true
             }
-            newImage.src = `${import.meta.env.VITE_BASE_URL}/images/cards/thumb/${card.level}/${card.value}.png`
+            newImage.src = `${import.meta.env.VITE_BASE_URL}/images/cards/big/${card.level}/${card.value}.png`
 
             // Mark the dragged card as matched and remove it
             draggedCard.isMatched = true

@@ -59,7 +59,12 @@ export const checkForceResetGameState = () => {
   const gameState = loadGameState()
 
   if (gameState && gameState.version !== packageJson.version) {
-    localStorage.removeItem(GAME_STATE_KEY)
+    const newGameState = {
+      ...gameState,
+      cards: [],
+      version: packageJson.version
+    }
+    saveGameState(newGameState)
   }
 }
 

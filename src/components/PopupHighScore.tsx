@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+
+import { formatNumber } from '@/utils/number'
 import { getHighScores, loadGameState } from '@/utils/save'
 
 interface HighScoreEntry {
@@ -72,7 +74,7 @@ export const PopupHighScore: React.FC<PopupHighScoreProps> = ({ onClose }) => {
                     <td className="py-2">{index + 1}</td>
                     <td className="py-2">{entry.playerName}</td>
                     <td className="py-2 text-right">
-                      {entry.score.toLocaleString()}
+                      {formatNumber(entry.score)}
                     </td>
                   </tr>
                 ))}

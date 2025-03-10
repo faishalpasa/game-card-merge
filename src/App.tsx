@@ -29,7 +29,9 @@ const App = () => {
     initializeGame,
     handleSetCards,
     player,
-    handleSetPlayerName
+    handleSetPlayerName,
+    addSlotPrice,
+    handleAddAdditionalSlotRow
   } = useGameState()
 
   const [showInstructions, setShowInstructions] = useState<boolean>(
@@ -107,9 +109,11 @@ const App = () => {
           />
           <GameCanvas cards={cards} onSetCards={handleSetCards} />
           <GameFooter
-            price={addCardPrice}
             score={score}
+            addCardPrice={addCardPrice}
             onAddCard={handleAddCard}
+            addSlotPrice={addSlotPrice}
+            onAddAdditionalSlotRow={handleAddAdditionalSlotRow}
           />
           {showInstructions && (
             <PopupInstruction

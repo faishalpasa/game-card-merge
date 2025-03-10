@@ -1,12 +1,15 @@
 export const formatNumber = (num: number): string => {
   if (num >= 1000000000) {
-    return (num / 1000000000).toFixed(1) + 'B'
+    const value = (num / 1000000000).toFixed(1)
+    return value.endsWith('.0') ? value.slice(0, -2) + 'B' : value + 'B'
   }
   if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M'
+    const value = (num / 1000000).toFixed(1)
+    return value.endsWith('.0') ? value.slice(0, -2) + 'M' : value + 'M'
   }
   if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K'
+    const value = (num / 1000).toFixed(1)
+    return value.endsWith('.0') ? value.slice(0, -2) + 'K' : value + 'K'
   }
   if (num % 1 === 0) {
     return num.toString()
