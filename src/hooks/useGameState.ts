@@ -32,7 +32,7 @@ export const useGameState = (): UseGameState => {
   const [cards, setCards] = useState<Card[]>([])
   const [addCardPrice, setAddCardPrice] = useState<number>(BASE_DRAW_CARD_PRICE)
   const [addSlotPrice, setAddSlotPrice] = useState<number>(BASE_ADD_SLOT_PRICE)
-  const [loadedGameState, setLoadedGameState] = useState<GameState | null>(null)
+  // const [loadedGameState, setLoadedGameState] = useState<GameState | null>(null)
   const [gameLoaded, setGameLoaded] = useState<boolean>(false)
   const [additionalSlotRows, setAdditionalSlotRows] = useState<number>(0)
 
@@ -97,13 +97,10 @@ export const useGameState = (): UseGameState => {
     setPlayer((prev) => ({ ...prev, name: newName, isNameEditable: false }))
   }, [])
 
-  const handleLoadCloudData = useCallback(async () => {
+  const initializeGame = useCallback(async () => {
     const cloudGameState = await loadCloudData()
-    setLoadedGameState(cloudGameState)
-  }, [])
 
-  const initializeGame = useCallback(() => {
-    if (loadedGameState) {
+    if (cloudGameState) {
       const {
         score,
         cards,
@@ -112,9 +109,9 @@ export const useGameState = (): UseGameState => {
         additionalSlotRows,
         highScore,
         player
-      } = loadedGameState
+      } = cloudGameState
 
-      if (!cards.length) {
+      if (cards.length) {
         // Reconstruct Card objects with saved positions
         const reconstructedCards = cards.map((cardData: any) => {
           const card = new Card(
@@ -150,11 +147,7 @@ export const useGameState = (): UseGameState => {
       setCards(createInitialCards())
     }
     setGameLoaded(true)
-  }, [loadedGameState])
-
-  useEffect(() => {
-    handleLoadCloudData()
-  }, [handleLoadCloudData])
+  }, [])
 
   // Save periodically
   useEffect(() => {

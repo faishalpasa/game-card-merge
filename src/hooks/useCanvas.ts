@@ -229,7 +229,7 @@ export const useCanvas = (
       const cardWidth = CARD_WIDTH
       const cardHeight = CARD_HEIGHT
       const padding = CARD_PADDING
-      const cols = Math.ceil(Math.sqrt(MAX_SLOT_CARDS))
+      const cols = MAX_SLOT_CARDS_PER_ROW
       const rows = Math.ceil(MAX_SLOT_CARDS / cols)
 
       // Calculate grid dimensions
