@@ -55,7 +55,11 @@ export const useGameState = (): UseGameState => {
   }
 
   const handleAddCard = (price: number): boolean => {
-    if (score < price || cards.length >= MAX_SLOT_CARDS) return false
+    if (
+      score < price ||
+      cards.length >= MAX_SLOT_CARDS + additionalSlotRows * MAX_SLOT_CARDS
+    )
+      return false
 
     setScore((prev) => prev - price)
     setDisplayScore((prev) => prev - price)
@@ -95,6 +99,13 @@ export const useGameState = (): UseGameState => {
 
   const handleSetPlayerName = useCallback((newName: string) => {
     setPlayer((prev) => ({ ...prev, name: newName, isNameEditable: false }))
+  }, [])
+
+  const newGameResetStats = useCallback(() => {
+    setCards(createInitialCards())
+    setAddCardPrice(BASE_DRAW_CARD_PRICE)
+    setAddSlotPrice(BASE_ADD_SLOT_PRICE)
+    setAdditionalSlotRows(0)
   }, [])
 
   const initializeGame = useCallback(async () => {
@@ -137,17 +148,17 @@ export const useGameState = (): UseGameState => {
         setScore(score || 0)
         setDisplayScore(score || 0)
         setCards(reconstructedCards)
-        setAddCardPrice(addCardPrice)
-        setAddSlotPrice(addSlotPrice)
-        setAdditionalSlotRows(additionalSlotRows)
+        setAddCardPrice(addCardPrice || BASE_DRAW_CARD_PRICE)
+        setAddSlotPrice(addSlotPrice || BASE_ADD_SLOT_PRICE)
+        setAdditionalSlotRows(additionalSlotRows || 0)
       } else {
-        setCards(createInitialCards())
+        newGameResetStats()
       }
     } else {
-      setCards(createInitialCards())
+      newGameResetStats()
     }
     setGameLoaded(true)
-  }, [])
+  }, [newGameResetStats])
 
   // Save periodically
   useEffect(() => {

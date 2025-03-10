@@ -1,4 +1,6 @@
 export const formatNumber = (num: number): string => {
+  if (!num) return '0'
+
   if (num >= 1000000000) {
     const value = (num / 1000000000).toFixed(1)
     return value.endsWith('.0') ? value.slice(0, -2) + 'B' : value + 'B'

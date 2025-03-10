@@ -76,6 +76,7 @@ export const saveCloudData = async (id: string, gameState: string) => {
     await setDoc(doc(db, GAME_STATE_COLLECTION, id), {
       gameState: gameState,
       playerName: parsedState.player.name || '',
+      playerId: parsedState.player.id || '',
       highScore: parsedState.highScore || 0,
       updatedAt: new Date()
     })
@@ -141,5 +142,28 @@ export const getHighScores = async (datalimit = 10) => {
   } catch (error) {
     console.error('Error getting high scores:', error)
     return []
+  }
+}
+
+export const loadCloudGameState = async (playerId: string) => {
+  try {
+    const docRef = doc(db, GAME_STATE_COLLECTION, playerId)
+    const docSnap = await getDoc(docRef)
+
+    if (docSnap.exists()) {
+      const data = docSnap.data()
+      if (data.gameState) {
+        const decryptedState = decrypt(data.gameState)
+        const parsedState = JSON.parse(decryptedState)
+
+        // Save to local storage
+        saveGameState(parsedState)
+        return true
+      }
+    }
+    return false
+  } catch (error) {
+    console.error('Error loading cloud game state:', error)
+    return false
   }
 }

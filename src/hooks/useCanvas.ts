@@ -21,6 +21,7 @@ interface DragState {
 export const useCanvas = (
   canvasRef: RefObject<HTMLCanvasElement>,
   cards: Card[],
+  additionalSlotRows: number,
   onCardClick?: (card: Card) => void,
   onSetCards?: (cards: CardClass[]) => void
 ) => {
@@ -38,34 +39,37 @@ export const useCanvas = (
   })
 
   // Memoize drawPlaceholders to prevent recreation on every render
-  const drawPlaceholders = useCallback((ctx: CanvasRenderingContext2D) => {
-    const cols = MAX_SLOT_CARDS_PER_ROW
-    const rows = Math.ceil(MAX_SLOT_CARDS / cols)
+  const drawPlaceholders = useCallback(
+    (ctx: CanvasRenderingContext2D) => {
+      const cols = MAX_SLOT_CARDS_PER_ROW
+      const rows = Math.ceil(MAX_SLOT_CARDS / cols) + additionalSlotRows
 
-    // Calculate grid dimensions
-    const gridWidth = cols * (CARD_WIDTH + CARD_PADDING) - CARD_PADDING
-    const gridHeight = rows * (CARD_HEIGHT + CARD_PADDING) - CARD_PADDING
-    const startX = (ctx.canvas.width - gridWidth) / 2
-    const startY = (ctx.canvas.height - gridHeight) / 2
+      // Calculate grid dimensions
+      const gridWidth = cols * (CARD_WIDTH + CARD_PADDING) - CARD_PADDING
+      const gridHeight = rows * (CARD_HEIGHT + CARD_PADDING) - CARD_PADDING
+      const startX = (ctx.canvas.width - gridWidth) / 2
+      const startY = (ctx.canvas.height - gridHeight) / 2
 
-    // Draw placeholders
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const x = startX + col * (CARD_WIDTH + CARD_PADDING)
-        const y = startY + row * (CARD_HEIGHT + CARD_PADDING)
+      // Draw placeholders
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const x = startX + col * (CARD_WIDTH + CARD_PADDING)
+          const y = startY + row * (CARD_HEIGHT + CARD_PADDING)
 
-        ctx.save()
-        ctx.fillStyle = '#e0e0e0'
-        ctx.strokeStyle = '#666666'
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        ctx.roundRect(x, y, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS)
-        ctx.fill()
-        ctx.stroke()
-        ctx.restore()
+          ctx.save()
+          ctx.fillStyle = '#e0e0e0'
+          ctx.strokeStyle = '#666666'
+          ctx.lineWidth = 1
+          ctx.beginPath()
+          ctx.roundRect(x, y, CARD_WIDTH, CARD_HEIGHT, CARD_RADIUS)
+          ctx.fill()
+          ctx.stroke()
+          ctx.restore()
+        }
       }
-    }
-  }, [])
+    },
+    [additionalSlotRows]
+  )
 
   const getEventCoordinates = useCallback(
     (e: MouseEvent | TouchEvent): { x: number; y: number } => {

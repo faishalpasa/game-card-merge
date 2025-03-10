@@ -12,9 +12,13 @@ import {
 import { CardDetailPopup } from '@/components/PopupCardDetail'
 
 // Add layout function
-function layoutCards(cards: Card[], canvas: HTMLCanvasElement) {
+function layoutCards(
+  cards: Card[],
+  canvas: HTMLCanvasElement,
+  additionalSlotRows: number
+) {
   const cols = MAX_SLOT_CARDS_PER_ROW
-  const rows = Math.ceil(MAX_SLOT_CARDS / cols)
+  const rows = Math.ceil(MAX_SLOT_CARDS / cols) + additionalSlotRows
 
   // Calculate grid dimensions
   const gridWidth = cols * (CARD_WIDTH + CARD_PADDING) - CARD_PADDING
@@ -78,9 +82,14 @@ function layoutCards(cards: Card[], canvas: HTMLCanvasElement) {
 interface GameCanvasProps {
   cards: Card[]
   onSetCards: (cards: Card[]) => void
+  additionalSlotRows: number
 }
 
-export const GameCanvas = ({ cards, onSetCards }: GameCanvasProps) => {
+export const GameCanvas = ({
+  cards,
+  onSetCards,
+  additionalSlotRows
+}: GameCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [selectedCard, setSelectedCard] = useState<Card | null>(null)
 
@@ -94,6 +103,7 @@ export const GameCanvas = ({ cards, onSetCards }: GameCanvasProps) => {
   } = useCanvas(
     canvasRef as RefObject<HTMLCanvasElement>,
     cards,
+    additionalSlotRows,
     (card) => setSelectedCard(card),
     onSetCards
   )
@@ -112,14 +122,14 @@ export const GameCanvas = ({ cards, onSetCards }: GameCanvasProps) => {
       canvas.height = window.innerHeight * 0.8 // 80% of viewport height
 
       // Layout cards after resize
-      layoutCards(cards, canvas)
+      layoutCards(cards, canvas, additionalSlotRows)
     }
 
     window.addEventListener('resize', adjustCanvasSize)
     adjustCanvasSize() // Initial size adjustment
 
     return () => window.removeEventListener('resize', adjustCanvasSize)
-  }, [cards])
+  }, [cards, additionalSlotRows])
 
   useEffect(() => {
     const canvas = canvasRef.current

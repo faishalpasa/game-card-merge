@@ -31,7 +31,8 @@ const App = () => {
     player,
     handleSetPlayerName,
     addSlotPrice,
-    handleAddAdditionalSlotRow
+    handleAddAdditionalSlotRow,
+    additionalSlotRows
   } = useGameState()
 
   const [showInstructions, setShowInstructions] = useState<boolean>(
@@ -109,8 +110,14 @@ const App = () => {
             onShowHighScore={() => setShowHighScore(true)}
             onEditName={() => setShowPlayerName(true)}
           />
-          <GameCanvas cards={cards} onSetCards={handleSetCards} />
+          <GameCanvas
+            cards={cards}
+            onSetCards={handleSetCards}
+            additionalSlotRows={additionalSlotRows}
+          />
           <GameFooter
+            cards={cards}
+            additionalSlotRows={additionalSlotRows}
             score={score}
             addCardPrice={addCardPrice}
             onAddCard={handleAddCard}
