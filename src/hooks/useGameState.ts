@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import packageJson from '../../package.json'
@@ -152,9 +152,15 @@ export const useGameState = (): UseGameState => {
     setGameLoaded(true)
   }, [loadedGameState])
 
-  // Save game state
-  const gameState = useMemo(
-    () => ({
+  useEffect(() => {
+    handleLoadCloudData()
+  }, [handleLoadCloudData])
+
+  // Save periodically
+  useEffect(() => {
+    if (!gameLoaded) return
+
+    const gameState = {
       timestamp: Date.now(),
       player: {
         id: player.id,
@@ -179,28 +185,19 @@ export const useGameState = (): UseGameState => {
       addCardPrice,
       addSlotPrice,
       version: packageJson.version
-    }),
-    [
-      score,
-      cards,
-      addCardPrice,
-      addSlotPrice,
-      highScore,
-      player,
-      additionalSlotRows
-    ]
-  )
-
-  useEffect(() => {
-    handleLoadCloudData()
-  }, [handleLoadCloudData])
-
-  // Save periodically
-  useEffect(() => {
-    if (!gameLoaded) return
+    }
 
     saveGameState(gameState)
-  }, [gameLoaded, gameState])
+  }, [
+    gameLoaded,
+    player,
+    highScore,
+    score,
+    cards,
+    additionalSlotRows,
+    addCardPrice,
+    addSlotPrice
+  ])
 
   // Update display score every centisecond
   useEffect(() => {

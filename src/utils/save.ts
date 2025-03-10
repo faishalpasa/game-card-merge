@@ -108,7 +108,7 @@ export const loadCloudData = async () => {
       console.log('No cloud game state found')
       return gameState
     } else {
-      console.log('No cloud game state found')
+      console.log('No cloud data exists')
       return gameState
     }
   } catch (error) {
